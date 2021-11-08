@@ -22,20 +22,27 @@ class CreateShortUrlUseCaseImpl(
     private val hashService: HashService,
     private val securityService: SecurityService
 ) : CreateShortUrlUseCase {
-    override fun create(url: String, data: ShortUrlProperties): ShortUrl =
-        if (validatorService.isValid(url) && securityService.isSafety(url)) {
-            val id: String = hashService.hasUrl(url)
-            val su = ShortUrl(
-                hash = id,
-                redirection = Redirection(target = url),
-                properties = ShortUrlProperties(
-                    safe = data.safe,
-                    ip = data.ip,
-                    sponsor = data.sponsor
-                )
-            )
-            shortUrlRepository.save(su)
-        } else {
+    override fun create(url: String, data: ShortUrlProperties): ShortUrl {
+        if (!validatorService.isValid(url)) {
             throw InvalidUrlException(url)
         }
+
+        if (!securityService.isSafety(url)) {
+            throw UnsafeUrlException(url);
+        }
+
+        val id: String = hashService.hasUrl(url)
+        val su = ShortUrl(
+            hash = id,
+            redirection = Redirection(target = url),
+            properties = ShortUrlProperties(
+                safe = data.safe,
+                ip = data.ip,
+                sponsor = data.sponsor
+            )
+        )
+        shortUrlRepository.save(su)
+
+        return su
+    }
 }

@@ -30,5 +30,7 @@ class HashServiceImpl : HashService {
  * Implementation of the port [SecurityService].
  */
 class SecurityServiceImpl : SecurityService {
-    override fun isSafety(url: String) = true
+    override fun isSafety(url: String) : Boolean {
+        return true
+    }
 }
