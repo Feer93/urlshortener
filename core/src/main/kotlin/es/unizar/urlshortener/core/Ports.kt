@@ -25,6 +25,14 @@ interface ValidatorService {
 }
 
 /**
+ * [URIisReachableService] is the port to the service that validates if an URL is reachable
+ *
+ */
+interface URIisReachableService {
+    fun isReachable(url: String): Boolean
+}
+
+/**
  * [InfoRepositoryService] is the port to the service that recovers info from the repositories.
  *
  */
