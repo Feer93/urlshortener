@@ -34,7 +34,7 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
     @ResponseBody
     @ExceptionHandler(value = [UnsafeUrlException::class])
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected fun invalidUrls(ex: UnsafeUrlException) = ErrorMessage(HttpStatus.BAD_REQUEST.value(), ex.message)
+    protected fun UnsafeUrls(ex: UnsafeUrlException) = ErrorMessage(HttpStatus.BAD_REQUEST.value(), ex.message)
 }
 
 data class ErrorMessage(
