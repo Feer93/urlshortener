@@ -7,6 +7,7 @@ import es.unizar.urlshortener.core.ShortUrlProperties
 import es.unizar.urlshortener.core.usecases.LogClickUseCase
 import es.unizar.urlshortener.core.usecases.CreateShortUrlUseCase
 import es.unizar.urlshortener.core.usecases.RedirectUseCase
+import es.unizar.urlshortener.core.usecases.CreateQrUseCase
 import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -50,7 +51,8 @@ data class ShortUrlDataIn(
  */
 data class ShortUrlDataOut(
     val url: URI? = null,
-    val properties: Map<String, Any> = emptyMap()
+    val properties: Map<String, Any> = emptyMap(),
+    val qr: String? = null
 )
 
 
@@ -63,7 +65,8 @@ data class ShortUrlDataOut(
 class UrlShortenerControllerImpl(
     val redirectUseCase: RedirectUseCase,
     val logClickUseCase: LogClickUseCase,
-    val createShortUrlUseCase: CreateShortUrlUseCase
+    val createShortUrlUseCase: CreateShortUrlUseCase,
+    val createQrUseCase: CreateQrUseCase
 ) : UrlShortenerController {
 
     @GetMapping("/tiny-{id:.*}")
@@ -93,6 +96,10 @@ class UrlShortenerControllerImpl(
                     "safe" to it.properties.safe
                 )
             )
+
+            //Añadir QR al header
+            h.add("QR", createQrUseCase.create(url.toString()))
+
             ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
         }
 }
