@@ -39,7 +39,9 @@ data class ShortUrlProperties(
     val sponsor: String? = null,
     val safe: Boolean = true,
     val owner: String? = null,
-    val country: String? = null
+    val country: String? = null,
+    val browser: String? = null,
+    val created: OffsetDateTime? = null
 )
 
 /**
@@ -50,5 +52,6 @@ data class ClickProperties(
     val referrer: String? = null,
     val browser: String? = null,
     val platform: String? = null,
-    val country: String? = null
+    val country: String? = null,
+    val created: OffsetDateTime? = null
 )

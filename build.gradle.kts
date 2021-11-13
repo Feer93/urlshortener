@@ -42,6 +42,7 @@ project(":core") {
         "implementation"("org.springframework.boot:spring-boot-starter-actuator")
         "implementation"("io.micrometer:micrometer-core")
         "implementation"("io.micrometer:micrometer-registry-prometheus")
+        "implementation"("com.maxmind.geoip2:geoip2:2.15.0")
     }
     tasks.getByName<BootJar>("bootJar") {
         enabled = false
@@ -75,6 +76,7 @@ project(":delivery") {
         "implementation"("com.google.guava:guava:23.0")
         "implementation"("io.micrometer:micrometer-core")
         "implementation"("io.micrometer:micrometer-registry-prometheus")
+        "implementation"("com.maxmind.geoip2:geoip2:2.15.0")
 
         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
         "testImplementation"("org.mockito.kotlin:mockito-kotlin:3.2.0")
@@ -97,6 +99,7 @@ project(":app") {
         "implementation"("org.springframework.boot:spring-boot-starter-actuator")
         "implementation"( "org.webjars:bootstrap:3.3.5")
         "implementation"("org.webjars:jquery:2.1.4")
+        "implementation"("com.maxmind.geoip2:geoip2:2.15.0")
 
         "runtimeOnly"("org.hsqldb:hsqldb")
 

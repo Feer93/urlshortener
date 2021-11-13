@@ -13,6 +13,14 @@ import io.micrometer.core.instrument.composite.CompositeMeterRegistry
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import com.maxmind.geoip2.DatabaseReader
+import com.maxmind.geoip2.exception.GeoIp2Exception
+import java.io.File
+
+import java.io.IOException
+
+
+
 
 /**
  * Wires use cases with service implementations, and services implementations with repositories.
@@ -41,13 +49,19 @@ class ApplicationConfiguration(
     fun infoRepositoryService() = InfoRepositoryServiceImpl(shortUrlEntityRepository, clickEntityRepository)
 
     @Bean
+    @Throws(IOException::class, GeoIp2Exception::class)
+    fun databaseReader(): DatabaseReader? = DatabaseReader.Builder(
+        File("./src/main/resources/GeoLite2-Country.mmdb")).build()
+
+    @Bean
     fun redirectUseCase() = RedirectUseCaseImpl(shortUrlRepositoryService())
 
     @Bean
-    fun logClickUseCase() = LogClickUseCaseImpl(clickRepositoryService())
+    fun logClickUseCase() = LogClickUseCaseImpl(clickRepositoryService(), databaseReader())
 
     @Bean
-    fun createShortUrlUseCase() = CreateShortUrlUseCaseImpl(shortUrlRepositoryService(), validatorService(), hashService())
+    fun createShortUrlUseCase() = CreateShortUrlUseCaseImpl(
+        shortUrlRepositoryService(), validatorService(), hashService(), databaseReader())
 
     @Bean
     fun recoverInfoUseCase() = RecoverInfoUseCaseImpl(infoRepositoryService())
@@ -57,4 +71,8 @@ class ApplicationConfiguration(
 
     @Bean
     fun timedAspect() = TimedAspect(meterRegistry)
+
+
+
+
 }
