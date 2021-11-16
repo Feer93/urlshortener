@@ -17,9 +17,7 @@ interface RedirectUseCase {
 /**
  * Implementation of [RedirectUseCase].
  */
-class RedirectUseCaseImpl(
-    private val shortUrlRepository: ShortUrlRepositoryService
-) : RedirectUseCase {
+class RedirectUseCaseImpl(private val shortUrlRepository: ShortUrlRepositoryService) : RedirectUseCase {
     override fun redirectTo(key: String) = shortUrlRepository
         .findByKey(key)
         ?.redirection

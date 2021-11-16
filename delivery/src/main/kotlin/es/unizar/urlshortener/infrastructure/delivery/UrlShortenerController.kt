@@ -1,9 +1,7 @@
 package es.unizar.urlshortener.infrastructure.delivery
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import es.unizar.urlshortener.core.ClickProperties
-import es.unizar.urlshortener.core.ShortUrl
-import es.unizar.urlshortener.core.ShortUrlProperties
+import es.unizar.urlshortener.core.*
 import es.unizar.urlshortener.core.usecases.LogClickUseCase
 import es.unizar.urlshortener.core.usecases.CreateShortUrlUseCase
 import es.unizar.urlshortener.core.usecases.RecoverInfoUseCase
@@ -88,22 +86,40 @@ class UrlShortenerControllerImpl(
     @PostMapping("/api/link", consumes = [ MediaType.APPLICATION_FORM_URLENCODED_VALUE ])
     @Timed(description = "Time spent creating the shortened URL")
     override fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> =
-        createShortUrlUseCase.create(
-            url = data.url,
-            data = ShortUrlProperties(
-                ip = request.remoteAddr,
-                sponsor = data.sponsor
-            )
-        ).let {
-            val h = HttpHeaders()
-            val url = linkTo<UrlShortenerControllerImpl> { redirectTo(it.hash, request) }.toUri()
-            h.location = url
-            val response = ShortUrlDataOut(
-                url = url,
-                properties = mapOf(
-                    "safe" to it.properties.safe
-                )
-            )
-            ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
-        }
+       try {
+           createShortUrlUseCase.create(
+                   url = data.url,
+                   data = ShortUrlProperties(
+                           ip = request.remoteAddr,
+                           sponsor = data.sponsor
+                   )
+           ).let {
+               val h = HttpHeaders()
+               val url = linkTo<UrlShortenerControllerImpl> { redirectTo(it.hash, request) }.toUri()
+               h.location = url
+               val response = ShortUrlDataOut(
+                       url = url,
+                       properties = mapOf(
+                               "safe" to it.properties.safe
+                       )
+               )
+               ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
+           }
+       }catch (invalidURL: InvalidUrlException){
+           val response = ShortUrlDataOut(
+                   url = null,
+                   properties = mapOf(
+                           "Error" to "Uri invalida"
+                   )
+           )
+          ResponseEntity<ShortUrlDataOut>(response,HttpStatus.BAD_REQUEST)
+       }catch (notReachableURL : NotReachableUrlException){
+           val response = ShortUrlDataOut(
+                   url = null,
+                   properties = mapOf(
+                           "Error" to "URI de destino no validada todavía"
+                   )
+           )
+           ResponseEntity<ShortUrlDataOut>(response,HttpStatus.BAD_REQUEST)
+       }
 }
