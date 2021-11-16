@@ -13,6 +13,7 @@ import io.micrometer.core.instrument.composite.CompositeMeterRegistry
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.scheduling.annotation.EnableAsync
 
 /**
  * Wires use cases with service implementations, and services implementations with repositories.
@@ -20,6 +21,7 @@ import org.springframework.context.annotation.Configuration
  * **Note**: Spring Boot is able to discover this [Configuration] without further configuration.
  */
 @Configuration
+@EnableAsync
 class ApplicationConfiguration(
     @Autowired val shortUrlEntityRepository: ShortUrlEntityRepository,
     @Autowired val clickEntityRepository: ClickEntityRepository,
@@ -44,10 +46,11 @@ class ApplicationConfiguration(
     fun redirectUseCase() = RedirectUseCaseImpl(shortUrlRepositoryService())
 
     @Bean
-    fun logClickUseCase() = LogClickUseCaseImpl(clickRepositoryService())
+    fun logClickUseCase() = LogClickUseCaseImpl(clickRepositoryService(), meterRegistry)
 
     @Bean
-    fun createShortUrlUseCase() = CreateShortUrlUseCaseImpl(shortUrlRepositoryService(), validatorService(), hashService())
+    fun createShortUrlUseCase() = CreateShortUrlUseCaseImpl(shortUrlRepositoryService(), validatorService(),
+        hashService(), meterRegistry)
 
     @Bean
     fun recoverInfoUseCase() = RecoverInfoUseCaseImpl(infoRepositoryService())
