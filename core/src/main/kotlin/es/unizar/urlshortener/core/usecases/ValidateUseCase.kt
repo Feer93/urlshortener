@@ -30,6 +30,9 @@ class ValidateUseCaseImpl() : ValidateUseCase {
     }
 
     override fun isSafe(url: String): ValidationResponse {
+        val uri = URI(API_URL)
+
+        //Create request body
         val body = ThreatMatchesRequest(
             ThreatInfo(
                 listOf(ThreatType.MALWARE, ThreatType.SOCIAL_ENGINEERING),
@@ -40,15 +43,19 @@ class ValidateUseCaseImpl() : ValidateUseCase {
                 )
             )
         )
+
+        // Convert body to json
         val requestBody = jacksonObjectMapper().writeValueAsString(body)
+        val request = HttpEntity(requestBody)
 
-        val response = 
-            restTemplate.postForObject(URI(API_URL), HttpEntity(requestBody), ThreatMatchesResponse::class.java)
+        //Request to google safe browsing
+        val response = restTemplate.postForObject(uri, request,ThreatMatchesResponse::class.java)
 
-        if (response?.matches.isNullOrEmpty()) {
-            return ValidationResponse.VALID 
+        //If the resposponse is empty, the url is secure
+        if (!response?.matches.isNullOrEmpty()) {
+            return ValidationResponse.UNSAFE
         }
         
-        return ValidationResponse.UNSAFE
+        return ValidationResponse.VALID 
     }
 }
