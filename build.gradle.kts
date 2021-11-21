@@ -12,6 +12,7 @@ plugins {
 group = "es.unizar"
 version = "0.0.1-SNAPSHOT"
 
+
 subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     repositories {
@@ -28,15 +29,20 @@ subprojects {
     }
     dependencies {
         "implementation"("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+        //"implementation"("org.springframework.boot:spring-boot-starter-actuator")
     }
 }
 
 project(":core") {
+    apply(plugin = "org.jetbrains.kotlin.plugin.spring")
     apply(plugin = "org.springframework.boot")
     apply(plugin = "io.spring.dependency-management")
     dependencies {
         "implementation"("org.springframework.boot:spring-boot-starter-web")
         "implementation"("com.fasterxml.jackson.module:jackson-module-kotlin")
+        "implementation"("org.springframework.boot:spring-boot-starter-actuator")
+        "implementation"("io.micrometer:micrometer-core")
+        "implementation"("io.micrometer:micrometer-registry-prometheus")
     }
     tasks.getByName<BootJar>("bootJar") {
         enabled = false
@@ -63,10 +69,13 @@ project(":delivery") {
     dependencies {
         "implementation"(project(":core"))
         "implementation"("org.springframework.boot:spring-boot-starter-web")
+        "implementation"("org.springframework.boot:spring-boot-starter-actuator")
         "implementation"("org.springframework.boot:spring-boot-starter-hateoas")
         "implementation"("com.fasterxml.jackson.module:jackson-module-kotlin")
         "implementation"("commons-validator:commons-validator:1.6")
         "implementation"("com.google.guava:guava:23.0")
+        "implementation"("io.micrometer:micrometer-core")
+        "implementation"("io.micrometer:micrometer-registry-prometheus")
 
         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
         "testImplementation"("org.mockito.kotlin:mockito-kotlin:3.2.0")
@@ -85,6 +94,8 @@ project(":app") {
         "implementation"(project(":delivery"))
         "implementation"(project(":repositories"))
         "implementation"("org.springframework.boot:spring-boot-starter")
+        "implementation"("org.springframework.boot:spring-boot-starter-web")
+        "implementation"("org.springframework.boot:spring-boot-starter-actuator")
         "implementation"( "org.webjars:bootstrap:3.3.5")
         "implementation"("org.webjars:jquery:2.1.4")
 

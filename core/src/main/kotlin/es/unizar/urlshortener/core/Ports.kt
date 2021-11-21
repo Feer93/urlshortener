@@ -25,6 +25,18 @@ interface ValidatorService {
 }
 
 /**
+ * [InfoRepositoryService] is the port to the service that recovers info from the repositories.
+ *
+ */
+interface InfoRepositoryService {
+    fun countURL(): Long
+    fun countRedirection(): Long
+    fun recoverTopKShortenedURL(k: Int): MutableList<Pair<String, Long>>
+    fun recoverTopKRedirection(k: Int):  MutableList<Pair<String, Long>>
+
+}
+
+/**
  * [HashService] is the port to the service that creates a hash from a URL.
  *
  * **Note**: It is a design decision to create this port. It could be part of the core .
