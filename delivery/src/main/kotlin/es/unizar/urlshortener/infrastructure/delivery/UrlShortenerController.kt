@@ -93,7 +93,7 @@ class UrlShortenerControllerImpl(
                 val response = ShortUrlDataOut(
                     url = url,
                     properties = mapOf(
-                        "Unsafe" to it.properties.safe
+                        "safe" to false
                     )
                 )
                 ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.NOT_FOUND)
