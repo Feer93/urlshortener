@@ -5,6 +5,13 @@ import es.unizar.urlshortener.core.ClickProperties
 import es.unizar.urlshortener.core.ShortUrl
 import es.unizar.urlshortener.core.ShortUrlProperties
 import es.unizar.urlshortener.core.usecases.*
+import io.micrometer.core.annotation.Timed
+import io.micrometer.core.instrument.Counter
+import io.micrometer.core.instrument.Gauge
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.core.instrument.Metrics
+import io.micrometer.core.instrument.composite.CompositeMeterRegistry
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -12,6 +19,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.net.URI
+import java.util.concurrent.atomic.AtomicInteger
 import javax.servlet.http.HttpServletRequest
 
 /**
@@ -66,6 +74,7 @@ class UrlShortenerControllerImpl(
 ) : UrlShortenerController {
 
     @GetMapping("/tiny-{id:.*}")
+    @Timed(description = "Time spent redirecting to the original URL")
     override fun redirectTo(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<Void> =
         redirectUseCase.redirectTo(id).let {
             logClickUseCase.logClick(id, ClickProperties(ip = request.remoteAddr))
@@ -75,6 +84,7 @@ class UrlShortenerControllerImpl(
         }
 
     @PostMapping("/api/link", consumes = [ MediaType.APPLICATION_FORM_URLENCODED_VALUE ])
+    @Timed(description = "Time spent creating the shortened URL")
     override fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> =
         createShortUrlUseCase.create(
             url = data.url,
