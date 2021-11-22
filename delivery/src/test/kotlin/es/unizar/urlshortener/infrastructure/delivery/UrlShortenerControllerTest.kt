@@ -5,6 +5,7 @@ import es.unizar.urlshortener.core.usecases.CreateShortUrlUseCase
 import es.unizar.urlshortener.core.usecases.LogClickUseCase
 import es.unizar.urlshortener.core.usecases.RecoverInfoUseCase
 import es.unizar.urlshortener.core.usecases.RedirectUseCase
+import es.unizar.urlshortener.core.usecases.ValidateUseCase
 import io.micrometer.core.instrument.MeterRegistry
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
@@ -38,6 +39,9 @@ class UrlShortenerControllerTest {
 
     @MockBean
     private lateinit var createShortUrlUseCase: CreateShortUrlUseCase
+
+    @MockBean
+    private lateinit var validateUseCase: ValidateUseCase
 
     @MockBean
     private lateinit var infolUseCase: RecoverInfoUseCase
@@ -94,6 +98,20 @@ class UrlShortenerControllerTest {
 
         mockMvc.perform(post("/api/link")
             .param("url", "ftp://example.com/")
+            .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.statusCode").value(400))
+    }
+
+    @Test
+    fun `creates returns bad request if url is not safe`() {
+        given(createShortUrlUseCase.create(
+            url = "https://testsafebrowsing.appspot.com/s/malware.html",
+            data = ShortUrlProperties(ip = "127.0.0.1")
+        )).willAnswer { throw InvalidUrlException("https://testsafebrowsing.appspot.com/s/malware.html") }
+
+        mockMvc.perform(post("/api/link")
+            .param("url", "https://testsafebrowsing.appspot.com/s/malware.html")
             .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.statusCode").value(400))
