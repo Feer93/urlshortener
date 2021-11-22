@@ -37,7 +37,7 @@ enum class ThreatEntryType {
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-class ThreatEntry(value: String, type: ThreatEntryRequestType) {
+class ThreatEntry(value: String, property: ThreatEntryRequestType) {
     @JsonProperty("hash")
     var hash: String? = null
     @JsonProperty("url")
@@ -46,16 +46,16 @@ class ThreatEntry(value: String, type: ThreatEntryRequestType) {
     var digest: String? = null
 
     init {
-        setOneValue(value, type)
+        setValue(value, property)
     }
 
-    private fun setOneValue(value: String, type: ThreatEntryRequestType) {
-        if (type == ThreatEntryRequestType.URL) {
+    private fun setValue(value: String, property: ThreatEntryRequestType) {
+        if (property == ThreatEntryRequestType.URL) {
             url = value
-        } else if (type == ThreatEntryRequestType.DIGEST) {
-            digest = value
-        } else if (type == ThreatEntryRequestType.HASH) {
+        } else if (property == ThreatEntryRequestType.HASH) {
             hash = value
+        } else if (property == ThreatEntryRequestType.DIGEST) {
+            digest = value
         }
         arrayOf<ThreatEntryRequestType>(ThreatEntryRequestType.HASH, ThreatEntryRequestType.HASH)
     }
