@@ -29,10 +29,20 @@ class InfoRepositoryServiceImpl(
     private val clickEntityRepository: ClickEntityRepository
 ) : InfoRepositoryService {
 
+    private fun simulateSlowService() {
+        try {
+            val time = 3000L
+            Thread.sleep(time)
+        } catch (e: InterruptedException) {
+            throw IllegalStateException(e)
+        }
+    }
+
     override fun countURL(): Long = shortUrlEntityRepository.count()
     override fun countRedirection(): Long = clickEntityRepository.count()
 
     override fun recoverTopKShortenedURL(k: Int): MutableList<Pair<String, Long>>{
+        simulateSlowService()
         val out: MutableList<Pair<String, Long>> = mutableListOf()
 
         val aux: HashMap<String, Long> = HashMap()

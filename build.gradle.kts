@@ -42,6 +42,7 @@ project(":core") {
         "implementation"("com.fasterxml.jackson.module:jackson-module-kotlin")
         "implementation"("org.springframework.boot:spring-boot-starter-actuator")
         "implementation"("io.micrometer:micrometer-core")
+        "implementation"("org.springframework.boot:spring-boot-starter-cache")
         "implementation"("io.micrometer:micrometer-registry-prometheus")
         "implementation"("com.maxmind.geoip2:geoip2:2.15.0")
     }
@@ -103,6 +104,7 @@ project(":app") {
         "implementation"( "org.webjars:bootstrap:3.3.5")
         "implementation"("org.webjars:jquery:2.1.4")
         "implementation"("com.maxmind.geoip2:geoip2:2.15.0")
+        "implementation"("org.springframework.boot:spring-boot-starter-cache")
 
         "runtimeOnly"("org.hsqldb:hsqldb")
 

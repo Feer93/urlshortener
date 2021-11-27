@@ -1,9 +1,5 @@
 package es.unizar.urlshortener
 
-import es.unizar.urlshortener.core.usecases.CreateShortUrlUseCaseImpl
-import es.unizar.urlshortener.core.usecases.LogClickUseCaseImpl
-import es.unizar.urlshortener.core.usecases.RecoverInfoUseCaseImpl
-import es.unizar.urlshortener.core.usecases.RedirectUseCaseImpl
 import es.unizar.urlshortener.infrastructure.delivery.HashServiceImpl
 import es.unizar.urlshortener.infrastructure.delivery.ValidatorServiceImpl
 import es.unizar.urlshortener.infrastructure.repositories.*
@@ -16,11 +12,15 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableAsync
 import com.maxmind.geoip2.DatabaseReader
 import com.maxmind.geoip2.exception.GeoIp2Exception
+import es.unizar.urlshortener.core.usecases.*
 import java.io.File
 
 import java.io.IOException
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager
 
-
+import org.springframework.cache.CacheManager
+import org.springframework.cache.annotation.EnableCaching
+import org.springframework.scheduling.annotation.EnableScheduling
 
 
 /**
@@ -29,6 +29,9 @@ import java.io.IOException
  * **Note**: Spring Boot is able to discover this [Configuration] without further configuration.
  */
 @Configuration
+@EnableAsync
+@EnableScheduling
+@EnableCaching
 class ApplicationConfiguration(
     @Autowired val shortUrlEntityRepository: ShortUrlEntityRepository,
     @Autowired val clickEntityRepository: ClickEntityRepository,
@@ -52,7 +55,8 @@ class ApplicationConfiguration(
     @Bean
     @Throws(IOException::class, GeoIp2Exception::class)
     fun databaseReader(): DatabaseReader? = DatabaseReader.Builder(
-        File("./src/main/resources/GeoLite2-Country.mmdb")).build()
+        //File("./src/main/resources/GeoLite2-Country.mmdb")).build()
+        File("/home/psoft/Documentos/IngWeb/urlshortener/app/src/main/resources/GeoLite2-Country.mmdb")).build()
 
     @Bean
     fun redirectUseCase() = RedirectUseCaseImpl(shortUrlRepositoryService())
@@ -75,4 +79,9 @@ class ApplicationConfiguration(
 
     @Bean
     fun timedAspect() = TimedAspect(meterRegistry)
+
+    @Bean
+    fun cacheManager(): CacheManager = ConcurrentMapCacheManager(
+        "TopKShortenedURL", "countURL", "countRedirection", "TopKRedirection")
+
 }

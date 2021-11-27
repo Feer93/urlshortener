@@ -1,30 +1,11 @@
 package es.unizar.urlshortener.infrastructure.delivery
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.maxmind.geoip2.DatabaseReader
-import es.unizar.urlshortener.core.ClickProperties
-import es.unizar.urlshortener.core.ShortUrl
-import es.unizar.urlshortener.core.ShortUrlProperties
-import es.unizar.urlshortener.core.usecases.LogClickUseCase
-import es.unizar.urlshortener.core.usecases.CreateShortUrlUseCase
 import es.unizar.urlshortener.core.usecases.RecoverInfoUseCase
-import es.unizar.urlshortener.core.usecases.RedirectUseCase
 import io.micrometer.core.annotation.Timed
-import io.micrometer.core.instrument.Counter
-import io.micrometer.core.instrument.Gauge
-import io.micrometer.core.instrument.MeterRegistry
-import io.micrometer.core.instrument.Metrics
-import io.micrometer.core.instrument.composite.CompositeMeterRegistry
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.net.InetAddress
-import java.net.URI
-import java.util.concurrent.atomic.AtomicInteger
 import javax.servlet.http.HttpServletRequest
 
 /**
@@ -36,13 +17,21 @@ interface StatsController {
     fun statsSpecific(id: String, request: HttpServletRequest): ResponseEntity<StatsOut>
 
 
-    fun statsGeneral(hash: String, request: HttpServletRequest): ResponseEntity<StatsOut>
+    fun statsGeneral(hash: String, request: HttpServletRequest): ResponseEntity<GeneralStatsOut>
 
 }
 
 
 data class StatsOut(
     val stat: String? = null
+)
+
+data class GeneralStatsOut(
+    val description: String? = null,
+    val totalShortenedURL: Long? = null,
+    val totalClicks: Long? = null,
+    val top100clickedShortenedURL: MutableList<Pair<String, Long>> = mutableListOf(),
+    val top100hostsWithShortenedURL: MutableList<Pair<String, Long>> = mutableListOf()
 )
 
 
@@ -53,6 +42,7 @@ data class StatsOut(
  */
 @RestController
 class StatsControllerImpl(
+    val recoverInfoUseCase: RecoverInfoUseCase
 ) : StatsController {
 
     @GetMapping("/shortURL-{id:.*}")
@@ -65,9 +55,15 @@ class StatsControllerImpl(
 
     @GetMapping("/{hash:.*}.json")
     @Timed(description = "Time spent calculating general stats")
-    override fun statsGeneral(@PathVariable hash: String, request: HttpServletRequest): ResponseEntity<StatsOut> {
+    override fun statsGeneral(@PathVariable hash: String, request: HttpServletRequest): ResponseEntity<GeneralStatsOut> {
         val h = HttpHeaders()
-        val response = StatsOut(hash)
-        return ResponseEntity<StatsOut>(response, h, HttpStatus.OK)
+        val response = GeneralStatsOut(
+            description = hash,
+            totalShortenedURL = recoverInfoUseCase.countURL(),
+            totalClicks = recoverInfoUseCase.countRedirection(),
+            top100clickedShortenedURL = recoverInfoUseCase.recoverTopKRedirection(100),
+            top100hostsWithShortenedURL = recoverInfoUseCase.recoverTopKShortenedURL(100)
+        )
+        return ResponseEntity<GeneralStatsOut>(response, h, HttpStatus.OK)
     }
 }
