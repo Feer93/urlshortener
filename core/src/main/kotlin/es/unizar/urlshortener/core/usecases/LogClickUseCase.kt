@@ -8,6 +8,7 @@ import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Metrics
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.scheduling.annotation.Async
 import java.net.InetAddress
 import java.time.OffsetDateTime
 
@@ -23,15 +24,27 @@ interface LogClickUseCase {
 /**
  * Implementation of [LogClickUseCase].
  */
-class LogClickUseCaseImpl(
+open class LogClickUseCaseImpl(
     private val clickRepository: ClickRepositoryService,
+    private val meterRegistry: MeterRegistry,
     private val databaseReader: DatabaseReader?
 ) : LogClickUseCase {
 
-    private lateinit var redirectionCounter: Counter
+    private var redirectionCounter: Counter = Counter.builder("user.action").
+        tag("type", "clickedURL").
+        description("Number of redirections").
+        register(meterRegistry)
 
+    /*
     @Autowired
     fun initMetrics(meterRegistry: MeterRegistry){
+        redirectionCounter = Counter.builder("user.action").tag("type", "clickedURL")
+            .description("Number of redirections").register(meterRegistry)
+        //redirectionCounter = meterRegistry.counter("user.action", "type", "clickedURL")
+    }*/
+    @Async
+    open fun updateMetrics(){
+        redirectionCounter.increment()
         redirectionCounter = Counter.builder("user.action").tag("type", "click")
             .description("Number of redirections").register(meterRegistry)
     }
@@ -55,7 +68,7 @@ class LogClickUseCaseImpl(
                 created = OffsetDateTime.now()
             )
         )
-        redirectionCounter.increment()
+        updateMetrics()
         clickRepository.save(cl)
     }
 }

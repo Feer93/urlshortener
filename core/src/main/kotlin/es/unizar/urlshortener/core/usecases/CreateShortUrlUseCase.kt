@@ -3,8 +3,10 @@ package es.unizar.urlshortener.core.usecases
 import com.maxmind.geoip2.DatabaseReader
 import es.unizar.urlshortener.core.*
 import io.micrometer.core.instrument.Counter
+import io.micrometer.core.instrument.Gauge
 import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.scheduling.annotation.Async
 import java.net.InetAddress
 import java.time.OffsetDateTime
 import java.util.concurrent.atomic.AtomicInteger
@@ -22,22 +24,36 @@ interface CreateShortUrlUseCase {
 /**
  * Implementation of [CreateShortUrlUseCase].
  */
-class CreateShortUrlUseCaseImpl(
+open class CreateShortUrlUseCaseImpl(
     private val shortUrlRepository: ShortUrlRepositoryService,
     private val validatorService: ValidatorService,
     private val hashService: HashService,
+    private val meterRegistry: MeterRegistry,
     private val databaseReader: DatabaseReader?
 ) : CreateShortUrlUseCase {
 
-    private lateinit var shortenerCounter: Counter
-    private lateinit var lastMsgLength: AtomicInteger
+    private var shortenerCounter: Counter = Counter.builder("user.action").
+        tag("type", "createShortenedURL").
+        description("Number of shortened URLs created").
+        register(meterRegistry)
 
+    private var lastMsgLength: AtomicInteger = meterRegistry.
+        gauge("shortener.last.url.length", AtomicInteger())!!
+
+    /*
     @Autowired
     fun initMetrics(meterRegistry: MeterRegistry){
         shortenerCounter = Counter.builder("user.action").tag("type", "createShortenedURL")
             .description("Number of shortened URLs created").register(meterRegistry)
 
+        //shortenerCounter = meterRegistry.counter("user.action", "type", "shortenedURL")
+
         lastMsgLength = meterRegistry.gauge("shortener.last.url.length", AtomicInteger())!!
+    }*/
+    @Async
+    open fun updateMetrics(n: Int){
+        shortenerCounter.increment()
+        lastMsgLength.set(n)
     }
 
     private fun getCountry(ip: String): String?{
@@ -64,8 +80,7 @@ class CreateShortUrlUseCaseImpl(
                     created = OffsetDateTime.now()
                 )
             )
-            shortenerCounter.increment()
-            lastMsgLength.set(url.length)
+            updateMetrics(url.length)
             shortUrlRepository.save(su)
         } else {
             throw InvalidUrlException(url)

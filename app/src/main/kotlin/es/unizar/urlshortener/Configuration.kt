@@ -13,6 +13,7 @@ import io.micrometer.core.instrument.composite.CompositeMeterRegistry
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.scheduling.annotation.EnableAsync
 import com.maxmind.geoip2.DatabaseReader
 import com.maxmind.geoip2.exception.GeoIp2Exception
 import java.io.File
@@ -57,11 +58,14 @@ class ApplicationConfiguration(
     fun redirectUseCase() = RedirectUseCaseImpl(shortUrlRepositoryService())
 
     @Bean
-    fun logClickUseCase() = LogClickUseCaseImpl(clickRepositoryService(), databaseReader())
+    fun logClickUseCase() = LogClickUseCaseImpl(clickRepositoryService(), meterRegistry, databaseReader())
 
     @Bean
-    fun createShortUrlUseCase() = CreateShortUrlUseCaseImpl(
-        shortUrlRepositoryService(), validatorService(), hashService(), databaseReader())
+    fun createShortUrlUseCase() = CreateShortUrlUseCaseImpl(shortUrlRepositoryService(), validatorService(),
+        hashService(), meterRegistry, databaseReader())
+
+    @Bean
+    fun validateUseCase() = ValidateUseCaseImpl()
 
     @Bean
     fun recoverInfoUseCase() = RecoverInfoUseCaseImpl(infoRepositoryService())
@@ -71,8 +75,4 @@ class ApplicationConfiguration(
 
     @Bean
     fun timedAspect() = TimedAspect(meterRegistry)
-
-
-
-
 }

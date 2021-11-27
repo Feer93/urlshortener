@@ -39,6 +39,7 @@ project(":core") {
     apply(plugin = "io.spring.dependency-management")
     dependencies {
         "implementation"("org.springframework.boot:spring-boot-starter-web")
+        "implementation"("com.fasterxml.jackson.module:jackson-module-kotlin")
         "implementation"("org.springframework.boot:spring-boot-starter-actuator")
         "implementation"("io.micrometer:micrometer-core")
         "implementation"("io.micrometer:micrometer-registry-prometheus")
@@ -68,6 +69,7 @@ project(":delivery") {
     apply(plugin = "io.spring.dependency-management")
     dependencies {
         "implementation"(project(":core"))
+        "implementation"("org.springframework.boot:spring-boot-starter-webflux")
         "implementation"("org.springframework.boot:spring-boot-starter-web")
         "implementation"("org.springframework.boot:spring-boot-starter-actuator")
         "implementation"("org.springframework.boot:spring-boot-starter-hateoas")
@@ -94,6 +96,7 @@ project(":app") {
         "implementation"(project(":core"))
         "implementation"(project(":delivery"))
         "implementation"(project(":repositories"))
+        "implementation"("org.springframework.boot:spring-boot-starter-webflux")
         "implementation"("org.springframework.boot:spring-boot-starter")
         "implementation"("org.springframework.boot:spring-boot-starter-web")
         "implementation"("org.springframework.boot:spring-boot-starter-actuator")
