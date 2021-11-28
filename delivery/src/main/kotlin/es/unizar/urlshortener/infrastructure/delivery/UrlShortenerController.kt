@@ -56,8 +56,7 @@ data class ShortUrlDataIn(
  */
 data class ShortUrlDataOut(
     val url: URI? = null,
-    val properties: Map<String, Any> = emptyMap(),
-    val qr: String? = null
+    val properties: Map<String, Any> = emptyMap()
 )
 
 
