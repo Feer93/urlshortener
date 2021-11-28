@@ -7,3 +7,17 @@ spring:
     driverClassName: org.hsqldb.jdbc.JDBCDriver
   jpa:
     open-in-view: false
+
+management:
+  endpoint:
+    health:
+      show-details: always
+
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,metrics,prometheus"
+
+      base-path: "/"
+
+

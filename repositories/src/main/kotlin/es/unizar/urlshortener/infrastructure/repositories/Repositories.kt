@@ -1,6 +1,7 @@
 package es.unizar.urlshortener.infrastructure.repositories
 
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
 
 /**
  * Specification of the repository of [ShortUrlEntity].
@@ -10,7 +11,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface ShortUrlEntityRepository : JpaRepository<ShortUrlEntity, String> {
     fun findByHash(hash: String): ShortUrlEntity?
 }
-
 /**
  * Specification of the repository of [ClickEntity].
  *
