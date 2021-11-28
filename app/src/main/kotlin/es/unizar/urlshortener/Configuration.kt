@@ -59,9 +59,6 @@ class ApplicationConfiguration(
     //fun meterRegistry() = meterRegistry
 
     @Bean
-    fun createShortUrlUseCase() = CreateShortUrlUseCaseImpl(shortUrlRepositoryService(), validatorService(), hashService())
-
-    @Bean
     fun createQrUseCase() = CreateQrUseCaseImpl()
     
     @Bean
