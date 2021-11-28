@@ -70,7 +70,7 @@ class UrlShortenerControllerImpl(
     val redirectUseCase: RedirectUseCase,
     val logClickUseCase: LogClickUseCase,
     val createShortUrlUseCase: CreateShortUrlUseCase,
-    val createQrUseCase: CreateQrUseCase
+    val createQrUseCase: CreateQrUseCase,
     val validateUseCase: ValidateUseCase
 ) : UrlShortenerController {
 
