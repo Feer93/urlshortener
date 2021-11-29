@@ -70,6 +70,7 @@ class UrlShortenerControllerImpl(
     val redirectUseCase: RedirectUseCase,
     val logClickUseCase: LogClickUseCase,
     val createShortUrlUseCase: CreateShortUrlUseCase,
+    val createQrUseCase: CreateQrUseCase,
     val validateUseCase: ValidateUseCase
 ) : UrlShortenerController {
 
@@ -115,8 +116,11 @@ class UrlShortenerControllerImpl(
                         "safe" to it.properties.safe
                     )
                 )
+                
+                //Añadir QR al header
+                h.add("QR", createQrUseCase.create(url.toString()))
+
                 ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
             }
-
         }
 }

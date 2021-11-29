@@ -43,6 +43,8 @@ project(":core") {
         "implementation"("org.springframework.boot:spring-boot-starter-actuator")
         "implementation"("io.micrometer:micrometer-core")
         "implementation"("io.micrometer:micrometer-registry-prometheus")
+        "implementation"("com.google.zxing:core:3.4.1")
+        "implementation"("com.google.zxing:javase:3.4.1")
     }
     tasks.getByName<BootJar>("bootJar") {
         enabled = false

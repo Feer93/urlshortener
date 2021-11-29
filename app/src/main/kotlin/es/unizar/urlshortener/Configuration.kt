@@ -59,5 +59,8 @@ class ApplicationConfiguration(
     //fun meterRegistry() = meterRegistry
 
     @Bean
+    fun createQrUseCase() = CreateQrUseCaseImpl()
+    
+    @Bean
     fun timedAspect() = TimedAspect(meterRegistry)
 }
