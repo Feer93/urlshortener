@@ -4,6 +4,9 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.client.j2se.MatrixToImageWriter
 import com.google.zxing.qrcode.QRCodeWriter
 import es.unizar.urlshortener.core.*
+import io.micrometer.core.instrument.Counter
+import io.micrometer.core.instrument.MeterRegistry
+import org.springframework.scheduling.annotation.Async
 import java.io.ByteArrayOutputStream
 import java.net.URI
 import java.util.*
@@ -25,8 +28,19 @@ interface CreateQrUseCase {
  * Implementation of the port [CreateQrUseCase].
  */
 open class CreateQrUseCaseImpl  (
-    private val qrRepositoryService: QrRepositoryService
+    private val qrRepositoryService: QrRepositoryService,
+    private val meterRegistry: MeterRegistry
     ) : CreateQrUseCase {
+
+    private var qrCounter: Counter = Counter.builder("user.action").
+        tag("type", "qrUsed").
+        description("Number of QRs used").
+        register(meterRegistry)
+
+    @Async
+    open fun updateQrCounter(){
+        qrCounter.increment()
+    }
 
     //Return String with ByteArray QR image data Base64 encoded
     override fun create(hash: String, url: String): String {
@@ -53,6 +67,7 @@ open class CreateQrUseCaseImpl  (
     override fun get(hash: String): String {
 
         val qrImage = qrRepositoryService.findByKey(hash)
+        updateQrCounter()
         return qrImage?.image ?: ""
     }
 }
