@@ -55,3 +55,11 @@ data class ClickProperties(
     val country: String? = null,
     val created: OffsetDateTime? = null
 )
+
+/**
+ * A [QrImage] is the qr associated to the [ShortUrl] with the same hash.
+ */
+data class QrImage(
+    val hash: String,
+    val image: String
+)

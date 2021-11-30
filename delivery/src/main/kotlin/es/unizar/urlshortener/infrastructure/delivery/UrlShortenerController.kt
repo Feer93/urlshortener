@@ -43,6 +43,12 @@ interface UrlShortenerController {
      */
     fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut>
 
+    /**
+     * Returns the URI associated to url with hash = id
+     *
+     */
+    fun getQr(hash: String, request: HttpServletRequest): ResponseEntity<QrDataOut>
+
 }
 
 /**
@@ -50,6 +56,7 @@ interface UrlShortenerController {
  */
 data class ShortUrlDataIn(
     val url: String,
+    val createQr: Boolean = false,
     val sponsor: String? = null
 )
 
@@ -58,9 +65,17 @@ data class ShortUrlDataIn(
  */
 data class ShortUrlDataOut(
     val url: URI? = null,
+    val qr: String? = null,
     val properties: Map<String, Any> = emptyMap()
 )
 
+/**
+ * Data returned when asked for a specific QR
+ */
+data class QrDataOut(
+    val image: String? = null,
+    val error: String? = null
+)
 
 /**
  * The implementation of the controller.
@@ -72,6 +87,7 @@ class UrlShortenerControllerImpl(
     val redirectUseCase: RedirectUseCase,
     val logClickUseCase: LogClickUseCase,
     val createShortUrlUseCase: CreateShortUrlUseCase,
+    val createQrUseCase: CreateQrUseCase,
     val validateUseCase: ValidateUseCase
 ) : UrlShortenerController {
 
@@ -115,14 +131,48 @@ class UrlShortenerControllerImpl(
                 ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.BAD_REQUEST)
             } else {
 
-                val response = ShortUrlDataOut(
-                    url = url,
-                    properties = mapOf(
-                        "safe" to it.properties.safe
+                if (data.createQr) {
+                    val qrUrl = createQrUseCase.create(it.hash, url.toString())
+                    val response = ShortUrlDataOut(
+                        url = url,
+                        properties = mapOf(
+                            "safe" to it.properties.safe
+                        ),
+                        qr = qrUrl
                     )
-                )
-                ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
-            }
 
+                    ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
+                } else {
+                    val response = ShortUrlDataOut(
+                        url = url,
+                        properties = mapOf(
+                            "safe" to it.properties.safe
+                        )
+                    )
+                    ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
+                }
+
+            }
         }
+
+    @GetMapping("/qr/{hash}")
+    @Timed(description = "Time spent returning the QR image")
+    override fun getQr(@PathVariable hash: String, request: HttpServletRequest): ResponseEntity<QrDataOut> {
+        val h = HttpHeaders()
+
+        val qrImage = createQrUseCase.get(hash)
+        if (qrImage != "") {
+            val response = QrDataOut(
+                image = qrImage
+            )
+            return ResponseEntity<QrDataOut>(response, h, HttpStatus.OK)
+
+        } else {
+            val response = QrDataOut(
+                error = "URL de destino no validada todavía"
+            )
+            return ResponseEntity<QrDataOut>(response, h, HttpStatus.NOT_FOUND)
+        }
+    }
+
 }

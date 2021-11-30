@@ -44,6 +44,8 @@ project(":core") {
         "implementation"("io.micrometer:micrometer-core")
         "implementation"("org.springframework.boot:spring-boot-starter-cache")
         "implementation"("io.micrometer:micrometer-registry-prometheus")
+        "implementation"("com.google.zxing:core:3.4.1")
+        "implementation"("com.google.zxing:javase:3.4.1")
         "implementation"("com.maxmind.geoip2:geoip2:2.15.0")
     }
     tasks.getByName<BootJar>("bootJar") {

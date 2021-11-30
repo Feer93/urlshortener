@@ -2,9 +2,12 @@ package es.unizar.urlshortener.core.usecases
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import es.unizar.urlshortener.core.*
+import io.micrometer.core.instrument.Counter
+import io.micrometer.core.instrument.MeterRegistry
 import java.net.URI
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.*
+import org.springframework.scheduling.annotation.Async
 import org.springframework.web.client.RestTemplate;
 
 enum class ValidationResponse {
@@ -21,9 +24,31 @@ interface ValidateUseCase {
 const val API_URL = "https://safebrowsing.googleapis.com/v4/threatMatches:find?key=AIzaSyDiXbmdOrpATVTSu5FqGCb98jMmE6cJ-c8"
 
 /* Implementation of [ValidateUseCase]. */
-class ValidateUseCaseImpl() : ValidateUseCase {
+open class ValidateUseCaseImpl(
+    private val meterRegistry: MeterRegistry
+) : ValidateUseCase {
 
     @Autowired lateinit var restTemplate: RestTemplate
+
+    private var validCounter: Counter = Counter.builder("validate.url").
+        tag("type", "validURL").
+        description("Number of URLs validated").
+        register(meterRegistry)
+
+    private var invalidCounter: Counter = Counter.builder("validate.url").
+        tag("type", "invalidURL").
+        description("Number of URLs rejected").
+        register(meterRegistry)
+
+    @Async
+    open fun updateValid(){
+        validCounter.increment()
+    }
+
+    @Async
+    open fun updateInvalid(){
+        invalidCounter.increment()
+    }
 
     override fun validate(url: String): ValidationResponse {
         return isSafe(url)
@@ -53,9 +78,10 @@ class ValidateUseCaseImpl() : ValidateUseCase {
 
         //If the resposponse is empty, the url is secure
         if (!response?.matches.isNullOrEmpty()) {
+            updateInvalid()
             return ValidationResponse.UNSAFE
         }
-        
+        updateValid()
         return ValidationResponse.VALID 
     }
 }

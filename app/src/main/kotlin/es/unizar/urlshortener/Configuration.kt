@@ -1,5 +1,7 @@
 package es.unizar.urlshortener
 
+import es.unizar.urlshortener.core.QrRepositoryService
+import es.unizar.urlshortener.core.usecases.*
 import es.unizar.urlshortener.infrastructure.delivery.HashServiceImpl
 import es.unizar.urlshortener.infrastructure.delivery.ValidatorServiceImpl
 import es.unizar.urlshortener.infrastructure.repositories.*
@@ -35,6 +37,7 @@ import java.nio.file.Paths
 @EnableCaching
 class ApplicationConfiguration(
     @Autowired val shortUrlEntityRepository: ShortUrlEntityRepository,
+    @Autowired val qrEntityRepository: QrEntityRepository,
     @Autowired val clickEntityRepository: ClickEntityRepository,
     @Autowired val meterRegistry: MeterRegistry
 ) {
@@ -43,6 +46,9 @@ class ApplicationConfiguration(
 
     @Bean
     fun shortUrlRepositoryService() = ShortUrlRepositoryServiceImpl(shortUrlEntityRepository)
+
+    @Bean
+    fun qrRepositoryService() = QrRepositoryServiceImpl(qrEntityRepository)
 
     @Bean
     fun validatorService() = ValidatorServiceImpl()
@@ -75,13 +81,16 @@ class ApplicationConfiguration(
         hashService(), meterRegistry, databaseReader())
 
     @Bean
-    fun validateUseCase() = ValidateUseCaseImpl()
+    fun validateUseCase() = ValidateUseCaseImpl(meterRegistry)
 
     @Bean
     fun recoverInfoUseCase() = RecoverInfoUseCaseImpl(infoRepositoryService())
 
     //@Bean
     //fun meterRegistry() = meterRegistry
+
+    @Bean
+    fun createQrUseCase() = CreateQrUseCaseImpl(qrRepositoryService(), meterRegistry)
 
     @Bean
     fun timedAspect() = TimedAspect(meterRegistry)

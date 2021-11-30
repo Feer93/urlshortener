@@ -2,11 +2,7 @@ package es.unizar.urlshortener.infrastructure.delivery
 
 import com.maxmind.geoip2.DatabaseReader
 import es.unizar.urlshortener.core.*
-import es.unizar.urlshortener.core.usecases.CreateShortUrlUseCase
-import es.unizar.urlshortener.core.usecases.LogClickUseCase
-import es.unizar.urlshortener.core.usecases.RecoverInfoUseCase
-import es.unizar.urlshortener.core.usecases.RedirectUseCase
-import es.unizar.urlshortener.core.usecases.ValidateUseCase
+import es.unizar.urlshortener.core.usecases.*
 import io.micrometer.core.instrument.MeterRegistry
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
@@ -52,6 +48,9 @@ class UrlShortenerControllerTest {
 
     @MockBean
     private lateinit var meterRegistry: MeterRegistry
+
+    @MockBean
+    private lateinit var createQrUseCase: CreateQrUseCase
 
     @Test
     fun `redirectTo returns a redirect when the key exists`() {

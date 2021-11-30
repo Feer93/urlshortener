@@ -11,6 +11,10 @@ import org.springframework.data.jpa.repository.Query
 interface ShortUrlEntityRepository : JpaRepository<ShortUrlEntity, String> {
     fun findByHash(hash: String): ShortUrlEntity?
 }
+
+interface QrEntityRepository :  JpaRepository<QrEntity, String> {
+    fun findByHash(hash: String): QrEntity?
+}
 /**
  * Specification of the repository of [ClickEntity].
  *
