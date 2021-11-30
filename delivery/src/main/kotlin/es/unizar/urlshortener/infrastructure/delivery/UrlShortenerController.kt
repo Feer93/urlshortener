@@ -54,6 +54,7 @@ interface UrlShortenerController {
  */
 data class ShortUrlDataIn(
     val url: String,
+    val createQr: Boolean = false,
     val sponsor: String? = null
 )
 
@@ -124,17 +125,27 @@ class UrlShortenerControllerImpl(
                 ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.BAD_REQUEST)
             } else {
 
-                val qrUrl = createQrUseCase.create(it.hash, url.toString())
+                if (data.createQr) {
+                    val qrUrl = createQrUseCase.create(it.hash, url.toString())
+                    val response = ShortUrlDataOut(
+                        url = url,
+                        properties = mapOf(
+                            "safe" to it.properties.safe
+                        ),
+                        qr = qrUrl
+                    )
 
-                val response = ShortUrlDataOut(
-                    url = url,
-                    properties = mapOf(
-                        "safe" to it.properties.safe
-                    ),
-                    qr = qrUrl
-                )
+                    ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
+                } else {
+                    val response = ShortUrlDataOut(
+                        url = url,
+                        properties = mapOf(
+                            "safe" to it.properties.safe
+                        )
+                    )
+                    ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
+                }
 
-                ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
             }
         }
 
