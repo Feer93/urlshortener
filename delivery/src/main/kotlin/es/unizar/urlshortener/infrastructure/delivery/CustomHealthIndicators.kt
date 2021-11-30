@@ -12,7 +12,7 @@ class ValidationServiceHealthIndicator(
     webBuilder: WebClient.Builder
 ): ReactiveHealthIndicator {
 
-    private val service = "Validation service health"
+    private val service = "Google Safebrowsing health"
     private val webClient = webBuilder.build()
 
     override fun health(): Mono<Health> {

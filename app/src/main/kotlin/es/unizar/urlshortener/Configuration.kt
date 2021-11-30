@@ -50,7 +50,7 @@ class ApplicationConfiguration(
         hashService(), meterRegistry)
 
     @Bean
-    fun validateUseCase() = ValidateUseCaseImpl()
+    fun validateUseCase() = ValidateUseCaseImpl(meterRegistry)
 
     @Bean
     fun recoverInfoUseCase() = RecoverInfoUseCaseImpl(infoRepositoryService())
