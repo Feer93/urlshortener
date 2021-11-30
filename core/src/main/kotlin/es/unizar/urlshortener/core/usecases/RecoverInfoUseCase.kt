@@ -15,8 +15,8 @@ import java.util.concurrent.TimeUnit
 interface RecoverInfoUseCase {
     fun countURL(): Long
     fun countRedirection(): Long
-    fun recoverTopKShortenedURL(k: Int): MutableList<Pair<String, Long>>
-    fun recoverTopKRedirection(k: Int):  MutableList<Pair<String, Long>>
+    fun recoverTopKShortenedURL(): MutableList<Pair<String, Long>>
+    fun recoverTopKRedirection():  MutableList<Pair<String, Long>>
 }
 
 /**
@@ -26,37 +26,39 @@ open class RecoverInfoUseCaseImpl(
     private val infoService: InfoRepositoryService
 ) : RecoverInfoUseCase {
 
-    @Cacheable("countURL")
+    private final val K = 100
+
+    @Cacheable("generalStats", key = "1")
     override fun countURL(): Long = infoService.countURL()
 
-    @Cacheable("countRedirection")
+    @Cacheable("generalStats", key = "2")
     override fun countRedirection(): Long = infoService.countRedirection()
 
-    @Cacheable("TopKShortenedURL", key = "100")
-    override fun recoverTopKShortenedURL(k: Int): MutableList<Pair<String, Long>> =
-        infoService.recoverTopKShortenedURL(k)
+    @Cacheable("generalStats", key = "3")
+    override fun recoverTopKShortenedURL(): MutableList<Pair<String, Long>> =
+        infoService.recoverTopKShortenedURL(K)
 
-    @Cacheable("TopKRedirection", key = "100")
-    override fun recoverTopKRedirection(k: Int):  MutableList<Pair<String, Long>> =
-        infoService.recoverTopKRedirection(k)
+    @Cacheable("generalStats", key = "4")
+    override fun recoverTopKRedirection():  MutableList<Pair<String, Long>> =
+        infoService.recoverTopKRedirection(K)
 
 
     @Scheduled(fixedRate = 60L, timeUnit = TimeUnit.SECONDS)
-    @CachePut("countURL")
+    @CachePut("generalStats", key = "1")
     open fun countURLUpdate(): Long = infoService.countURL()
 
     @Scheduled(fixedRate = 60L, timeUnit = TimeUnit.SECONDS)
-    @CachePut("countRedirection")
+    @CachePut("generalStats", key = "2")
     open fun countRedirectionUpdate(): Long = infoService.countRedirection()
 
     @Scheduled(fixedRate = 60L, timeUnit = TimeUnit.SECONDS)
-    @CachePut("TopKShortenedURL", key = "100")
+    @CachePut("generalStats", key = "3")
     open fun recoverTopKShortenedURLUpdate(): MutableList<Pair<String, Long>> =
-        infoService.recoverTopKShortenedURL(100)
+        infoService.recoverTopKShortenedURL(K)
 
     @Scheduled(fixedRate = 60L, timeUnit = TimeUnit.SECONDS)
-    @CachePut("TopKRedirection", key = "100")
+    @CachePut("generalStats", key = "4")
     open fun recoverTopKRedirectionUpdate():  MutableList<Pair<String, Long>> =
-        infoService.recoverTopKRedirection(100)
+        infoService.recoverTopKRedirection(K)
 
 }

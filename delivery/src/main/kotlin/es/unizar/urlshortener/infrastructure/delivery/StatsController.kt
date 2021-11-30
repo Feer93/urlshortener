@@ -61,8 +61,8 @@ class StatsControllerImpl(
             description = hash,
             totalShortenedURL = recoverInfoUseCase.countURL(),
             totalClicks = recoverInfoUseCase.countRedirection(),
-            top100clickedShortenedURL = recoverInfoUseCase.recoverTopKRedirection(100),
-            top100hostsWithShortenedURL = recoverInfoUseCase.recoverTopKShortenedURL(100)
+            top100clickedShortenedURL = recoverInfoUseCase.recoverTopKRedirection(),
+            top100hostsWithShortenedURL = recoverInfoUseCase.recoverTopKShortenedURL()
         )
         return ResponseEntity<GeneralStatsOut>(response, h, HttpStatus.OK)
     }

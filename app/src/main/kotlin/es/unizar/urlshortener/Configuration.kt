@@ -21,6 +21,7 @@ import org.springframework.cache.concurrent.ConcurrentMapCacheManager
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.scheduling.annotation.EnableScheduling
+import java.nio.file.Paths
 
 
 /**
@@ -54,9 +55,14 @@ class ApplicationConfiguration(
 
     @Bean
     @Throws(IOException::class, GeoIp2Exception::class)
-    fun databaseReader(): DatabaseReader? = DatabaseReader.Builder(
-        //File("./src/main/resources/GeoLite2-Country.mmdb")).build()
-        File("/home/psoft/Documentos/IngWeb/urlshortener/app/src/main/resources/GeoLite2-Country.mmdb")).build()
+    fun databaseReader(): DatabaseReader? {
+        val userDirectory: String = Paths.get("")
+            .toAbsolutePath()
+            .toString()
+        println(userDirectory)
+        return DatabaseReader.Builder(
+            File("$userDirectory/src/main/resources/GeoLite2-Country.mmdb")).build()
+    }
 
     @Bean
     fun redirectUseCase() = RedirectUseCaseImpl(shortUrlRepositoryService())
@@ -82,6 +88,6 @@ class ApplicationConfiguration(
 
     @Bean
     fun cacheManager(): CacheManager = ConcurrentMapCacheManager(
-        "TopKShortenedURL", "countURL", "countRedirection", "TopKRedirection")
+        "generalStats")
 
 }

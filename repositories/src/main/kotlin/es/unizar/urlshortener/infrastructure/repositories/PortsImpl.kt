@@ -42,7 +42,7 @@ class InfoRepositoryServiceImpl(
     override fun countRedirection(): Long = clickEntityRepository.count()
 
     override fun recoverTopKShortenedURL(k: Int): MutableList<Pair<String, Long>>{
-        simulateSlowService()
+        //simulateSlowService()
         val out: MutableList<Pair<String, Long>> = mutableListOf()
 
         val aux: HashMap<String, Long> = HashMap()

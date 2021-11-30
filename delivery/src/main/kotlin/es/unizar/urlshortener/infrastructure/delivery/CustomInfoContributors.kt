@@ -17,7 +17,7 @@ class RedirectionInfoContributor(
     val info: RecoverInfoUseCase
 ) : InfoContributor {
     override fun contribute(builder: Info.Builder) {
-        builder.withDetail("Top 100 clicked shortened URl", info.recoverTopKRedirection(100))
+        builder.withDetail("Top 100 clicked shortened URl", info.recoverTopKRedirection())
     }
 }
 
@@ -26,7 +26,7 @@ class ShortenedURLInfoContributor(
     val info: RecoverInfoUseCase
 ) : InfoContributor {
     override fun contribute(builder: Info.Builder) {
-        builder.withDetail("Top 100 hosts to have a URl shortened", info.recoverTopKShortenedURL(100))
+        builder.withDetail("Top 100 hosts to have a URl shortened", info.recoverTopKShortenedURL())
     }
 }
 
