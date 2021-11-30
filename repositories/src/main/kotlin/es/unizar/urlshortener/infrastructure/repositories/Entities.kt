@@ -39,3 +39,16 @@ class ShortUrlEntity(
     val ip: String?,
     val country: String?
 )
+
+
+/**
+ * The [QrEntity] entity stores qr images.
+ */
+@Entity
+@Table(name = "qr")
+class QrEntity(
+    @Id
+    val hash: String,
+    @Column(length=16777216)    //Increment space for image column
+    val image: String
+)
