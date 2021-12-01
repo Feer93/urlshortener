@@ -1,27 +1,28 @@
 package es.unizar.urlshortener.infrastructure.delivery
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import es.unizar.urlshortener.core.*
-import es.unizar.urlshortener.core.usecases.LogClickUseCase
-import es.unizar.urlshortener.core.usecases.CreateShortUrlUseCase
-import es.unizar.urlshortener.core.usecases.RecoverInfoUseCase
-import es.unizar.urlshortener.core.usecases.RedirectUseCase
+import es.unizar.urlshortener.core.usecases.*
 import io.micrometer.core.annotation.Timed
-import io.micrometer.core.instrument.Counter
-import io.micrometer.core.instrument.Gauge
-import io.micrometer.core.instrument.MeterRegistry
-import io.micrometer.core.instrument.Metrics
-import io.micrometer.core.instrument.composite.CompositeMeterRegistry
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.scheduling.annotation.Async
+import org.springframework.scheduling.annotation.AsyncResult
 import org.springframework.web.bind.annotation.*
+import java.net.MalformedURLException
 import java.net.URI
-import java.util.concurrent.atomic.AtomicInteger
+import java.net.URL
+import java.nio.channels.Channel
+import java.util.concurrent.BlockingQueue
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Future
 import javax.servlet.http.HttpServletRequest
+
 
 /**
  * The specification of the controller.
@@ -42,6 +43,8 @@ interface UrlShortenerController {
      */
     fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut>
 
+    fun testing(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut>
+
 }
 
 /**
@@ -56,8 +59,8 @@ data class ShortUrlDataIn(
  * Data returned after the creation of a short url.
  */
 data class ShortUrlDataOut(
-    val url: URI? = null,
-    val properties: Map<String, Any> = emptyMap()
+        var url: URI? = null,
+        val properties: Map<String, Any> = emptyMap()
 )
 
 
@@ -70,8 +73,36 @@ data class ShortUrlDataOut(
 class UrlShortenerControllerImpl(
     val redirectUseCase: RedirectUseCase,
     val logClickUseCase: LogClickUseCase,
-    val createShortUrlUseCase: CreateShortUrlUseCase
+    val createShortUrlUseCase: CreateShortUrlUseCase,
+    val reachableUrlUseCase: ReachableUrlUseCase,
 ) : UrlShortenerController {
+
+
+    private val LOGGER: Logger = LoggerFactory.getLogger(UrlShortenerControllerImpl::class.java)
+
+
+
+    @Autowired
+    private val urlQueue: BlockingQueue<URL>? = null
+
+    @Autowired
+    private val multiThreadDownloader: es.unizar.urlshortener.core.blockingQueue.Scheduler? = null
+
+    @Async
+    fun startScrapping(URLs: URL) : CompletableFuture<Boolean?> {
+        LOGGER.info("Starting crawler....")
+        // Añadimos las URLs a la blockingqueue
+        urlQueue?.put(URLs)
+        // Empezamos a schedulear las URLs
+        val futureReturn: Future<Boolean>? = multiThreadDownloader?.scheduleEachUrlForDownload(reachableUrlUseCase)
+        val start = System.currentTimeMillis();
+        val resultado= futureReturn?.get()
+        val end = System.currentTimeMillis();
+        LOGGER.info("Resultado listo en " + (end-start))
+        LOGGER.info("Resultado listo " + resultado)
+        return  CompletableFuture.completedFuture(resultado);
+
+    }
 
     @GetMapping("/tiny-{id:.*}")
     @Timed(description = "Time spent redirecting to the original URL")
@@ -97,6 +128,17 @@ class UrlShortenerControllerImpl(
                val h = HttpHeaders()
                val url = linkTo<UrlShortenerControllerImpl> { redirectTo(it.hash, request) }.toUri()
                h.location = url
+
+
+               if (!reachableUrlUseCase.isReachable(data.url)) {
+                   val response = ShortUrlDataOut(
+                           url = null,
+                           properties = mapOf(
+                                   "Error" to "URI de destino no validada todavia"
+                           )
+                   )
+                   ResponseEntity<ShortUrlDataOut>(response, HttpStatus.BAD_REQUEST)
+               } else{
                val response = ShortUrlDataOut(
                        url = url,
                        properties = mapOf(
@@ -104,6 +146,7 @@ class UrlShortenerControllerImpl(
                        )
                )
                ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
+                }
            }
        }catch (invalidURL: InvalidUrlException){
            val response = ShortUrlDataOut(
@@ -113,13 +156,47 @@ class UrlShortenerControllerImpl(
                    )
            )
           ResponseEntity<ShortUrlDataOut>(response,HttpStatus.BAD_REQUEST)
-       }catch (notReachableURL : NotReachableUrlException){
-           val response = ShortUrlDataOut(
-                   url = null,
-                   properties = mapOf(
-                           "Error" to "URI de destino no validada todavía"
-                   )
-           )
-           ResponseEntity<ShortUrlDataOut>(response,HttpStatus.BAD_REQUEST)
        }
+
+    @PostMapping("/api/testing", consumes = [ MediaType.APPLICATION_FORM_URLENCODED_VALUE ])
+    override fun testing(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> =
+     try {
+         System.out.println(data.url)
+         createShortUrlUseCase.create(
+                 url = data.url,
+                 data = ShortUrlProperties(
+                         ip = request.remoteAddr,
+                         sponsor = data.sponsor
+                 )
+         ).let {
+
+             val reachableURL: CompletableFuture<Boolean?> = startScrapping(URL(data.url))
+             val response = ShortUrlDataOut(
+                     url = null,
+                     properties = mutableMapOf(
+                             "Malformed" to "Respuesta"
+                     )
+             )
+
+             CompletableFuture.allOf(
+                     reachableURL
+             ).get()
+
+             if (reachableURL.get() == true) {
+                 response.url = linkTo<UrlShortenerControllerImpl> { redirectTo(it.hash, request) }.toUri()
+             }
+             ResponseEntity<ShortUrlDataOut>(response, HttpHeaders(), HttpStatus.CREATED)
+         }
+
+     }catch (invalidURL: InvalidUrlException){
+
+         val response = ShortUrlDataOut(
+                 url = null,
+                 properties = mapOf(
+                         "Error" to "Uri invalida"
+                 )
+         )
+         ResponseEntity<ShortUrlDataOut>(response, HttpHeaders(), HttpStatus.CREATED)
+     }
+
 }

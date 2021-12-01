@@ -1,5 +1,7 @@
 package es.unizar.urlshortener.core
 
+import java.util.concurrent.BlockingQueue
+
 /**
  * [ClickRepositoryService] is the port to the repository that provides persistence to [Clicks][Click].
  */
@@ -24,13 +26,6 @@ interface ValidatorService {
     fun isValid(url: String): Boolean
 }
 
-/**
- * [URIisReachableService] is the port to the service that validates if an URL is reachable
- *
- */
-interface URIisReachableService {
-    fun isReachable(url: String): Boolean
-}
 
 /**
  * [InfoRepositoryService] is the port to the service that recovers info from the repositories.

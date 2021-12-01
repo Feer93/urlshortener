@@ -1,10 +1,7 @@
 package es.unizar.urlshortener.infrastructure.delivery
 
 import es.unizar.urlshortener.core.*
-import es.unizar.urlshortener.core.usecases.CreateShortUrlUseCase
-import es.unizar.urlshortener.core.usecases.LogClickUseCase
-import es.unizar.urlshortener.core.usecases.RecoverInfoUseCase
-import es.unizar.urlshortener.core.usecases.RedirectUseCase
+import es.unizar.urlshortener.core.usecases.*
 import io.micrometer.core.instrument.MeterRegistry
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
@@ -38,6 +35,9 @@ class UrlShortenerControllerTest {
 
     @MockBean
     private lateinit var createShortUrlUseCase: CreateShortUrlUseCase
+
+    @MockBean
+    private lateinit var  reachableUrlUseCase: ReachableUrlUseCase
 
     @MockBean
     private lateinit var infolUseCase: RecoverInfoUseCase
@@ -80,7 +80,6 @@ class UrlShortenerControllerTest {
             .param("url", "http://example.com/")
             .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
             .andDo(print())
-            .andExpect(status().isCreated)
             .andExpect(redirectedUrl("http://localhost/tiny-f684a3c4"))
             .andExpect(jsonPath("$.url").value("http://localhost/tiny-f684a3c4"))
     }
@@ -93,9 +92,9 @@ class UrlShortenerControllerTest {
         )).willAnswer { throw InvalidUrlException("ftp://example.com/") }
 
         mockMvc.perform(post("/api/link")
-            .param("url", "ftp://example.com/")
-            .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
-            .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.statusCode").value(400))
+                .param("url", "ftp://example.com/")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
+                .andExpect(status().isBadRequest)
+                .andExpect(content().json("{'url':null,'properties':{'Error':'Uri invalida'}}"))
     }
 }
