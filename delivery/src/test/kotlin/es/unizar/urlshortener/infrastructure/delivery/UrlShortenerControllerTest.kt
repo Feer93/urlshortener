@@ -119,4 +119,17 @@ class UrlShortenerControllerTest {
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.statusCode").value(400))
     }
+
+    @Test
+    fun `creates returns created if url is safe`() {
+        given(createShortUrlUseCase.create(
+            url = "http://unizar.es/",
+            data = ShortUrlProperties(ip = "127.0.0.1")
+        )).willReturn(ShortUrl("248f6744", Redirection("http://unizar.es/")))
+
+        mockMvc.perform(post("/api/link")
+            .param("url", "http://unizar.es/")
+            .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
+            .andExpect(status().isCreated)
+    }
 }
