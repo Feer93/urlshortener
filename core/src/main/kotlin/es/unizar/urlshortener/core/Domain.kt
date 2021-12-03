@@ -41,8 +41,19 @@ data class ShortUrlProperties(
     val owner: String? = null,
     val country: String? = null,
     val browser: String? = null,
-    val created: OffsetDateTime? = null
+    val created: OffsetDateTime? = null,
+    val state: ValidationState? = null
 )
+
+/**
+ * A [ValidationState] is the bag of states that a [ShortUrl] may have.
+ * PENDING when a [ShortUrl] is not validated yet, and VALIDATED when it is
+ * validated
+ */
+enum class ValidationState {
+    PENDING,
+    VALIDATED
+}
 
 /**
  * A [ClickProperties] is the bag of properties that a [Click] may have.
