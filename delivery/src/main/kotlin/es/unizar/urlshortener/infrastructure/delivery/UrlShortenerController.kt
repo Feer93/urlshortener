@@ -24,6 +24,8 @@ import java.net.InetAddress
 import java.net.URI
 import java.util.concurrent.atomic.AtomicInteger
 import javax.servlet.http.HttpServletRequest
+import java.util.concurrent.BlockingQueue
+import es.unizar.urlshortener.core.blockingQueue.Scheduler
 
 /**
  * The specification of the controller.
@@ -92,6 +94,12 @@ class UrlShortenerControllerImpl(
     val validateUseCase: ValidateUseCase
 ) : UrlShortenerController {
 
+    @Autowired
+    private val validationQueue: BlockingQueue<String>? = null
+
+    @Autowired
+    private val multiThreadValidator: Scheduler? = null
+
     @GetMapping("/tiny-{id:.*}")
     @Timed(description = "Time spent redirecting to the original URL")
     override fun redirectTo(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<Void> =
@@ -120,6 +128,10 @@ class UrlShortenerControllerImpl(
             val h = HttpHeaders()
             val url = linkTo<UrlShortenerControllerImpl> { redirectTo(it.hash, request) }.toUri()
             h.location = url
+            //Add the url to the verification queue
+            validationQueue?.put(data.url)
+
+            multiThreadValidator?.execute()
 
             if (data.createQr) {
                 val qrUrl = createQrUseCase.create(it.hash, url.toString())
