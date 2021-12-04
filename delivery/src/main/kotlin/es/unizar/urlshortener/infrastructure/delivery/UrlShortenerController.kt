@@ -5,7 +5,6 @@ import com.maxmind.geoip2.DatabaseReader
 import es.unizar.urlshortener.core.ClickProperties
 import es.unizar.urlshortener.core.ShortUrl
 import es.unizar.urlshortener.core.ShortUrlProperties
-import es.unizar.urlshortener.core.ValidationState
 import es.unizar.urlshortener.core.usecases.*
 import io.micrometer.core.annotation.Timed
 import io.micrometer.core.instrument.Counter
@@ -90,8 +89,7 @@ class UrlShortenerControllerImpl(
     val redirectUseCase: RedirectUseCase,
     val logClickUseCase: LogClickUseCase,
     val createShortUrlUseCase: CreateShortUrlUseCase,
-    val createQrUseCase: CreateQrUseCase,
-    val validateUseCase: ValidateUseCase
+    val createQrUseCase: CreateQrUseCase
 ) : UrlShortenerController {
 
     @Autowired
@@ -122,7 +120,6 @@ class UrlShortenerControllerImpl(
                 ip = request.remoteAddr,
                 sponsor = data.sponsor,
                 browser = request.getHeader("User-Agent"),
-                state = ValidationState.PENDING
             )
         ).let {
             val h = HttpHeaders()
@@ -153,7 +150,7 @@ class UrlShortenerControllerImpl(
                 )
 
                 ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
-            }        
+            }
         }
 
     @GetMapping("/qr/{hash}")

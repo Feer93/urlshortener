@@ -45,7 +45,8 @@ fun ShortUrlEntity.toDomain() = ShortUrl(
         owner = owner,
         safe = safe,
         ip = ip,
-        country = country
+        country = country,
+        verified = verified
     )
 )
 
@@ -61,7 +62,8 @@ fun ShortUrl.toEntity() = ShortUrlEntity(
     sponsor = properties.sponsor,
     safe = properties.safe,
     ip = properties.ip,
-    country = properties.country
+    country = properties.country,
+    verified = properties.verified
 )
 
 /**
