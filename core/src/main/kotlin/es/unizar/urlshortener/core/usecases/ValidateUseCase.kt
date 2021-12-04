@@ -19,12 +19,14 @@ enum class ValidationResponse {
 interface ValidateUseCase {
     fun validate(url: String): ValidationResponse
     fun isSafe(url: String): ValidationResponse
+    fun isValidated(hash: String): Boolean
 }
 
 const val API_URL = "https://safebrowsing.googleapis.com/v4/threatMatches:find?key=AIzaSyDiXbmdOrpATVTSu5FqGCb98jMmE6cJ-c8"
 
 /* Implementation of [ValidateUseCase]. */
 open class ValidateUseCaseImpl(
+    private val shortUrlRepository: ShortUrlRepositoryService,
     private val meterRegistry: MeterRegistry
 ) : ValidateUseCase {
 
@@ -51,7 +53,7 @@ open class ValidateUseCaseImpl(
     }
 
     override fun validate(url: String): ValidationResponse {
-        return isSafe(url)
+        return isSafe(url) /*&& isReachable(url)*/
     }
 
     override fun isSafe(url: String): ValidationResponse {
@@ -83,5 +85,12 @@ open class ValidateUseCaseImpl(
         }
         updateValid()
         return ValidationResponse.VALID 
+    }
+
+    /* Returns if a [ShortUrl] is masked as validated. */
+    override fun isValidated(hash: String) : Boolean {
+        var shortUrl: ShortUrl = shortUrlRepository.findByKey(hash)!!
+
+        return shortUrl.properties.validated
     }
 }

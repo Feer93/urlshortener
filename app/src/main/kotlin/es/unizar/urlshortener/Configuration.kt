@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableAsync
 import com.maxmind.geoip2.DatabaseReader
 import com.maxmind.geoip2.exception.GeoIp2Exception
-import es.unizar.urlshortener.core.usecases.*
 import java.io.File
 
 import java.io.IOException
@@ -81,7 +80,7 @@ class ApplicationConfiguration(
         hashService(), meterRegistry, databaseReader())
 
     @Bean
-    fun validateUseCase() = ValidateUseCaseImpl(meterRegistry)
+    fun validateUseCase() = ValidateUseCaseImpl(shortUrlRepositoryService(),meterRegistry)
 
     @Bean
     fun recoverInfoUseCase() = RecoverInfoUseCaseImpl(infoRepositoryService())

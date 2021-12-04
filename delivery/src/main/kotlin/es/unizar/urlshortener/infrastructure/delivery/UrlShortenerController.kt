@@ -89,7 +89,8 @@ class UrlShortenerControllerImpl(
     val redirectUseCase: RedirectUseCase,
     val logClickUseCase: LogClickUseCase,
     val createShortUrlUseCase: CreateShortUrlUseCase,
-    val createQrUseCase: CreateQrUseCase
+    val createQrUseCase: CreateQrUseCase,
+    val validateUseCase: ValidateUseCase
 ) : UrlShortenerController {
 
     @Autowired
@@ -107,8 +108,17 @@ class UrlShortenerControllerImpl(
                 browser = request.getHeader("User-Agent")
             ))
             val h = HttpHeaders()
+
+            if (validateUseCase.isValidated(id)) {
+                print("Esta validada")
+            } else {
+                //TODO: http response 
+                print("No esta validada")
+            }
+
             h.location = URI.create(it.target)
             ResponseEntity<Void>(h, HttpStatus.valueOf(it.mode))
+            
         }
 
     @PostMapping("/api/link", consumes = [ MediaType.APPLICATION_FORM_URLENCODED_VALUE ])

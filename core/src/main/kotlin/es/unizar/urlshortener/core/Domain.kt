@@ -42,7 +42,7 @@ data class ShortUrlProperties(
     val country: String? = null,
     val browser: String? = null,
     val created: OffsetDateTime? = null,
-    var verified: Boolean = false
+    var validated: Boolean = false
 )
 
 /**
