@@ -109,16 +109,13 @@ class UrlShortenerControllerImpl(
             ))
             val h = HttpHeaders()
 
+            //The uri is inaccessible as long as it has not been validated.
             if (validateUseCase.isValidated(id)) {
-                print("Esta validada")
-            } else {
-                //TODO: http response 
-                print("No esta validada")
+                h.location = URI.create(it.target)
+                ResponseEntity<Void>(h, HttpStatus.valueOf(it.mode))
+            } else {       
+                ResponseEntity<Void>(h, HttpStatus.BAD_REQUEST)
             }
-
-            h.location = URI.create(it.target)
-            ResponseEntity<Void>(h, HttpStatus.valueOf(it.mode))
-            
         }
 
     @PostMapping("/api/link", consumes = [ MediaType.APPLICATION_FORM_URLENCODED_VALUE ])
