@@ -126,15 +126,15 @@ class UrlShortenerControllerImpl(
             data = ShortUrlProperties(
                 ip = request.remoteAddr,
                 sponsor = data.sponsor,
-                browser = request.getHeader("User-Agent"),
+                browser = request.getHeader("User-Agent")
             )
         ).let {
             val h = HttpHeaders()
             val url = linkTo<UrlShortenerControllerImpl> { redirectTo(it.hash, request) }.toUri()
             h.location = url
+
             //Add the url to the verification queue
             validationQueue?.put(data.url)
-
             multiThreadValidator?.execute()
 
             if (data.createQr) {

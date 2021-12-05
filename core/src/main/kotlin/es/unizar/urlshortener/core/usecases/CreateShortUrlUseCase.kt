@@ -77,7 +77,7 @@ open class CreateShortUrlUseCaseImpl(
                     sponsor = data.sponsor,
                     country = data.ip?.let { getCountry(it) },
                     browser = data.browser,
-                    created = OffsetDateTime.now(),
+                    created = OffsetDateTime.now()
                 )
             )
             updateMetrics(url.length)

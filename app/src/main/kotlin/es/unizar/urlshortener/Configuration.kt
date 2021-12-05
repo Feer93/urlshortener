@@ -80,7 +80,7 @@ class ApplicationConfiguration(
         hashService(), meterRegistry, databaseReader())
 
     @Bean
-    fun validateUseCase() = ValidateUseCaseImpl(shortUrlRepositoryService(),meterRegistry)
+    fun validateUseCase() = ValidateUseCaseImpl(shortUrlRepositoryService(), meterRegistry)
 
     @Bean
     fun recoverInfoUseCase() = RecoverInfoUseCaseImpl(infoRepositoryService())

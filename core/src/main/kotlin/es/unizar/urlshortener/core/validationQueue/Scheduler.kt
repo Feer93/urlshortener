@@ -19,7 +19,7 @@ class Scheduler(
 
     // ? TODO: Hay alguna manera de que empiece al principio sin tenerla que llamar cada vez que llega una url ????
     @Async("validationExecutor")
-    fun execute(/*validateUseCase: ValidateUseCase*/) {
+    fun execute() {
         val url: String = validationQueue!!.take()
 
         val validationResponse = validateUseCase.validate(url)
@@ -32,9 +32,7 @@ class Scheduler(
 
         //Takes the [ShortUrl] from the repository and marks it as validated
         var shortUrl: ShortUrl = shortUrlRepository.findByUrl(url)!!
-
         shortUrl.properties.validated = true
-
         shortUrlRepository.save(shortUrl)
     }
 }
