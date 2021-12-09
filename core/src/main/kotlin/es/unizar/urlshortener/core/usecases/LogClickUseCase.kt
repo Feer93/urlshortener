@@ -35,6 +35,8 @@ open class LogClickUseCaseImpl(
         description("Number of redirections").
         register(meterRegistry)
 
+    private val hashCounter = HashCounter("user.click.hash", "hash", meterRegistry)
+
     /*
     @Autowired
     fun initMetrics(meterRegistry: MeterRegistry){
@@ -42,11 +44,21 @@ open class LogClickUseCaseImpl(
             .description("Number of redirections").register(meterRegistry)
         //redirectionCounter = meterRegistry.counter("user.action", "type", "clickedURL")
     }*/
+
+    class HashCounter(private val name: String, private val tagName: String, private val registry: MeterRegistry) {
+        private val counters: MutableMap<String, Counter> = HashMap()
+        fun increment(tagValue: String) {
+            counters.getOrPut(tagValue) {
+                Counter.builder(name).tags(tagName, tagValue).
+                description("Number of clicks per shortened URL").register(registry)
+            }.increment()
+        }
+    }
+
     @Async
-    open fun updateMetrics(){
+    open fun updateMetrics(key: String){
         redirectionCounter.increment()
-        redirectionCounter = Counter.builder("user.action").tag("type", "click")
-            .description("Number of redirections").register(meterRegistry)
+        hashCounter.increment(key)
     }
 
     private fun getCountry(ip: String): String?{
@@ -68,7 +80,7 @@ open class LogClickUseCaseImpl(
                 created = OffsetDateTime.now()
             )
         )
-        updateMetrics()
+        updateMetrics(key)
         clickRepository.save(cl)
     }
 }
