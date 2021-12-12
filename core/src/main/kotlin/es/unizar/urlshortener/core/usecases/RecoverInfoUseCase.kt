@@ -49,23 +49,23 @@ open class RecoverInfoUseCaseImpl(
         infoService.recoverTopKRedirection(K)
 
 
-    @Async
+    //@Async
     //@Scheduled(fixedRate = 60L, timeUnit = TimeUnit.SECONDS)
     @CachePut("generalStats", key = "1")
     override fun countURLUpdate(): Long = infoService.countURL()
 
-    @Async
+    //@Async
     //@Scheduled(fixedRate = 60L, timeUnit = TimeUnit.SECONDS)
     @CachePut("generalStats", key = "2")
     override fun countRedirectionUpdate(): Long = infoService.countRedirection()
 
-    @Async
+    //@Async
     //@Scheduled(fixedRate = 60L, timeUnit = TimeUnit.SECONDS)
     @CachePut("generalStats", key = "3")
     override fun recoverTopKShortenedURLUpdate(): MutableList<Pair<String, Long>> =
         infoService.recoverTopKShortenedURL(K)
 
-    @Async
+    //@Async
     //@Scheduled(fixedRate = 60L, timeUnit = TimeUnit.SECONDS)
     @CachePut("generalStats", key = "4")
     override fun recoverTopKRedirectionUpdate():  MutableList<Pair<String, Long>> =

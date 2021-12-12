@@ -68,7 +68,6 @@ class ApplicationConfiguration(
         val userDirectory: String = Paths.get("")
             .toAbsolutePath()
             .toString()
-        println(userDirectory)
         return DatabaseReader.Builder(
             File("$userDirectory/src/main/resources/GeoLite2-Country.mmdb")).build()
     }

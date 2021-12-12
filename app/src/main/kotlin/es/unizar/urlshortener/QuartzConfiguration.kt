@@ -21,6 +21,7 @@ import org.quartz.SimpleTrigger
 import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean
 
 import org.springframework.scheduling.quartz.JobDetailFactoryBean
+import java.nio.file.Paths
 
 
 /**
@@ -34,17 +35,16 @@ class QuartzScheduler(
 ) {
 
     @Bean
-    fun springBeanJobFactory(): SpringBeanJobFactory? {
-        val jobFactory = AutoWiringSpringBeanJobFactory()
-        jobFactory.setApplicationContext(applicationContext)
-        return jobFactory
-    }
-
-    @Bean
     fun scheduler(trigger: Trigger, job: JobDetail): SchedulerFactoryBean {
         val schedulerFactory = SchedulerFactoryBean()
-        schedulerFactory.setConfigLocation(ClassPathResource("quartz.properties"))
-        schedulerFactory.setJobFactory(springBeanJobFactory()!!)
+        val userDirectory: String = Paths.get("")
+            .toAbsolutePath()
+            .toString()
+        schedulerFactory.setConfigLocation(
+            ClassPathResource("quartz.properties"))
+        val jobFactory = AutoWiringSpringBeanJobFactory()
+        jobFactory.setApplicationContext(applicationContext)
+        schedulerFactory.setJobFactory(jobFactory)
         schedulerFactory.setJobDetails(job)
         schedulerFactory.setTriggers(trigger)
         return schedulerFactory
@@ -64,7 +64,7 @@ class QuartzScheduler(
     fun trigger(job: JobDetail): SimpleTriggerFactoryBean {
         val trigger = SimpleTriggerFactoryBean()
         trigger.setJobDetail(job)
-        val frequencyInSec = 10
+        val frequencyInSec = 1000
         trigger.setRepeatInterval((frequencyInSec * 60).toLong())
         trigger.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY)
         trigger.setName("GeneralStats_Trigger")

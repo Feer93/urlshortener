@@ -16,15 +16,16 @@ import org.springframework.stereotype.Component
 
 
 @Component
-class GeneralStatsJob(
-    val info: RecoverInfoUseCase
-    ) : Job {
+class GeneralStatsJob: Job {
+
+    @Autowired
+    private val info: RecoverInfoUseCase? = null
 
     @Throws(JobExecutionException::class)
     override fun execute(context: JobExecutionContext) {
-        info.countRedirectionUpdate();
-        info.countURLUpdate()
-        info.recoverTopKRedirectionUpdate()
-        info.recoverTopKShortenedURLUpdate()
+        info?.countRedirectionUpdate()
+        info?.countURLUpdate()
+        info?.recoverTopKRedirectionUpdate()
+        info?.recoverTopKShortenedURLUpdate()
     }
 }
