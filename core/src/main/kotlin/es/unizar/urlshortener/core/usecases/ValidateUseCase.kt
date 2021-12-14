@@ -32,20 +32,16 @@ open class ValidateUseCaseImpl(
 
     private var validCounter: Counter = Counter.builder("validate.url").
         tag("type", "validURL").
-        description("Number of URLs validated").
         register(meterRegistry)
 
     private var invalidCounter: Counter = Counter.builder("validate.url").
         tag("type", "invalidURL").
-        description("Number of URLs rejected").
         register(meterRegistry)
 
-    @Async
     open fun updateValid(){
         validCounter.increment()
     }
 
-    @Async
     open fun updateInvalid(){
         invalidCounter.increment()
     }

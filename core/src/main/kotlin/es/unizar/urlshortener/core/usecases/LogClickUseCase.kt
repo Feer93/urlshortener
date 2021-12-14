@@ -32,7 +32,6 @@ open class LogClickUseCaseImpl(
 
     private var redirectionCounter: Counter = Counter.builder("user.action").
         tag("type", "clickedURL").
-        description("Number of redirections").
         register(meterRegistry)
 
     private val hashCounter = HashCounter("user.click.hash", "hash", meterRegistry)
@@ -50,7 +49,7 @@ open class LogClickUseCaseImpl(
         fun increment(tagValue: String) {
             counters.getOrPut(tagValue) {
                 Counter.builder(name).tags(tagName, tagValue).
-                description("Number of clicks per shortened URL").register(registry)
+                register(registry)
             }.increment()
         }
     }
