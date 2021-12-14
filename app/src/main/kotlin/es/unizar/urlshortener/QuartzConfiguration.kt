@@ -37,9 +37,6 @@ class QuartzScheduler(
     @Bean
     fun scheduler(trigger: Trigger, job: JobDetail): SchedulerFactoryBean {
         val schedulerFactory = SchedulerFactoryBean()
-        val userDirectory: String = Paths.get("")
-            .toAbsolutePath()
-            .toString()
         schedulerFactory.setConfigLocation(
             ClassPathResource("quartz.properties"))
         val jobFactory = AutoWiringSpringBeanJobFactory()
