@@ -27,6 +27,7 @@ import org.springframework.cache.annotation.EnableCaching
 import org.springframework.scheduling.annotation.EnableScheduling
 import java.nio.file.Paths
 import org.quartz.SimpleScheduleBuilder.simpleSchedule
+import org.springframework.core.io.ClassPathResource
 
 
 /**
@@ -65,11 +66,8 @@ class ApplicationConfiguration(
     @Bean
     @Throws(IOException::class, GeoIp2Exception::class)
     fun databaseReader(): DatabaseReader? {
-        val userDirectory: String = Paths.get("")
-            .toAbsolutePath()
-            .toString()
         return DatabaseReader.Builder(
-            File("$userDirectory/src/main/resources/GeoLite2-Country.mmdb")).build()
+            ClassLoader.getSystemResourceAsStream("GeoLite2-Country.mmdb")).build()
     }
 
     @Bean

@@ -35,13 +35,18 @@ class QuartzScheduler(
 ) {
 
     @Bean
+    fun springBeanJobFactory(): SpringBeanJobFactory {
+        val jobFactory = AutoWiringSpringBeanJobFactory()
+        jobFactory.setApplicationContext(applicationContext)
+        return jobFactory
+    }
+
+    @Bean
     fun scheduler(trigger: Trigger, job: JobDetail): SchedulerFactoryBean {
         val schedulerFactory = SchedulerFactoryBean()
         schedulerFactory.setConfigLocation(
             ClassPathResource("quartz.properties"))
-        val jobFactory = AutoWiringSpringBeanJobFactory()
-        jobFactory.setApplicationContext(applicationContext)
-        schedulerFactory.setJobFactory(jobFactory)
+        schedulerFactory.setJobFactory(springBeanJobFactory())
         schedulerFactory.setJobDetails(job)
         schedulerFactory.setTriggers(trigger)
         return schedulerFactory
