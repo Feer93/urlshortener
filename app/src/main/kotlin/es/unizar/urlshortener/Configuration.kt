@@ -15,6 +15,8 @@ import org.springframework.scheduling.annotation.EnableAsync
 import com.maxmind.geoip2.DatabaseReader
 import com.maxmind.geoip2.exception.GeoIp2Exception
 import es.unizar.urlshortener.core.usecases.*
+import es.unizar.urlshortener.infrastructure.delivery.GeneralStatsJob
+import org.quartz.*
 import java.io.File
 
 import java.io.IOException
@@ -24,6 +26,8 @@ import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.scheduling.annotation.EnableScheduling
 import java.nio.file.Paths
+import org.quartz.SimpleScheduleBuilder.simpleSchedule
+import org.springframework.core.io.ClassPathResource
 
 
 /**
@@ -62,12 +66,8 @@ class ApplicationConfiguration(
     @Bean
     @Throws(IOException::class, GeoIp2Exception::class)
     fun databaseReader(): DatabaseReader? {
-        val userDirectory: String = Paths.get("")
-            .toAbsolutePath()
-            .toString()
-        println(userDirectory)
         return DatabaseReader.Builder(
-            File("$userDirectory/src/main/resources/GeoLite2-Country.mmdb")).build()
+            ClassLoader.getSystemResourceAsStream("GeoLite2-Country.mmdb")).build()
     }
 
     @Bean
