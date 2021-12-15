@@ -171,21 +171,30 @@ class UrlShortenerControllerImpl(
          ).let {
 
              val reachableURL: CompletableFuture<Boolean?> = startScrapping(URL(data.url))
-             val response = ShortUrlDataOut(
-                     url = null,
-                     properties = mutableMapOf(
-                             "Malformed" to "Respuesta"
-                     )
-             )
+
 
              CompletableFuture.allOf(
                      reachableURL
              ).get()
 
              if (reachableURL.get() == true) {
+                 val response = ShortUrlDataOut(
+                         url = null,
+                         properties = mutableMapOf(
+                                 "Reachable" to "Respuesta"
+                         )
+                 )
                  response.url = linkTo<UrlShortenerControllerImpl> { redirectTo(it.hash, request) }.toUri()
+                 ResponseEntity<ShortUrlDataOut>(response, HttpHeaders(), HttpStatus.CREATED)
+             }else {
+                 val response = ShortUrlDataOut(
+                         url = null,
+                         properties = mutableMapOf(
+                                 "Non-Reachable" to "Respuesta"
+                         )
+                 )
+                 ResponseEntity<ShortUrlDataOut>(response, HttpHeaders(), HttpStatus.CREATED)
              }
-             ResponseEntity<ShortUrlDataOut>(response, HttpHeaders(), HttpStatus.CREATED)
          }
 
      }catch (invalidURL: InvalidUrlException){

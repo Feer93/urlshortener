@@ -23,8 +23,8 @@ class QueueConfig {
     fun taskExecutor(): Executor
     {
         val executor = ThreadPoolTaskExecutor()
-        executor.corePoolSize = 20
-        executor.maxPoolSize = 20
+        executor.corePoolSize = 25
+        executor.maxPoolSize = 25
         executor.setQueueCapacity(1000)
         executor.setThreadNamePrefix("MyExecutor-")
         executor.initialize()

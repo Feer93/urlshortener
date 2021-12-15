@@ -5,10 +5,12 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
 import java.net.URL
+import java.net.UnknownHostException
 
 
 interface ReachableUrlUseCase {
     fun isReachable(url: String) : Boolean
+    fun isReachable2(url: String) : Boolean
 }
 
 class ReachableUrlUseCaseImpl() : ReachableUrlUseCase{
@@ -17,7 +19,7 @@ class ReachableUrlUseCaseImpl() : ReachableUrlUseCase{
 
         val url = URL(url)
         val connection: HttpURLConnection = url.openConnection() as HttpURLConnection
-        connection.connectTimeout = 3 * 1000
+        connection.connectTimeout = 2 * 1000
         return try {
             connection.connect()
             connection.responseCode == HttpStatus.OK.value()
@@ -31,6 +33,19 @@ class ReachableUrlUseCaseImpl() : ReachableUrlUseCase{
 
     }
 
+    override fun isReachable2(url: String): Boolean {
+        val connection = URL(url).openConnection() as HttpURLConnection
+        connection.requestMethod = "HEAD"
+        try{
+            val responseCode = connection.responseCode
+            if (responseCode != 200) {
+                return false
+            }
+            return true
+        }catch (exception : IOException){
+            return false
+        }
+    }
 
 
 }
