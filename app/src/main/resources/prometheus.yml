@@ -1,0 +1,26 @@
+global:
+  scrape_interval:     15s
+scrape_configs:
+  - job_name: 'prometheus'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['127.0.0.1:9090']
+
+  - job_name: 'urlshortener'
+    metrics_path: '/prometheus'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['10.0.2.15:8080']
+
+
+# 1 - Cambiar IP de la línea 13 por la vuestra (no sirve localhost si lo quereis ejecutar con docker)
+# 2 - Ejecutar el servidor urlshortener
+# 3 - Lanzar un docker con prometheus (path absoluto):
+  #docker run -d --name=prometheus -p 9090:9090  -v <PATH/prometheus.yml>:/etc/prometheus/prometheus.yml  prom/prometheus
+# 4 - Comprobar en http://127.0.0.1:9090/ (si no se cambia) que funciona correctamente y que los targets (prometheus
+# y urlshortehener están UP)
+# 5 - Lanzar un docker con grafana:
+  #docker run -d --name=grafana -p 3000:3000 grafana/grafana
+# 6 - Añadir a grafana (http://locahost:3030, user:admin, password:admin) el "DataSource" de prometheus creado con vuestra
+#  IP (no localhost, en mi caso sería http://10.0.2.15:9090) y el resto de campos no hace falta tocarlos.
+# 7 - Ahora habría que crear un dashboard para visualizar las métricas
