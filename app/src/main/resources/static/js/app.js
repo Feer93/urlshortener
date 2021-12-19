@@ -21,9 +21,9 @@ $(document).ready(
                             + "</div>"
                     )},
                     error : function() {
-                        $("#result").html(
+                     $("#result").html(
                             "<div class='alert alert-danger lead'>ERROR</div>");
-                    }
+                     }
                 });
             });
     });

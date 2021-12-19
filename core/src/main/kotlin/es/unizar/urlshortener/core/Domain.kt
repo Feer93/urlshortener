@@ -35,14 +35,15 @@ data class Redirection(
  * A [ShortUrlProperties] is the bag of properties that a [ShortUrl] may have.
  */
 data class ShortUrlProperties(
-    val ip: String? = null,
-    val sponsor: String? = null,
-    val safe: Boolean = true,
-    val owner: String? = null,
-    val country: String? = null,
-    val browser: String? = null,
-    val created: OffsetDateTime? = null,
-    var validated: Boolean = false
+        val ip: String? = null,
+        val sponsor: String? = null,
+        var safe:Boolean = false,
+        var validated: Boolean = false,
+        val owner: String? = null,
+        var reachable: Boolean = false,
+        val country: String? = null,
+        val browser: String? = null,
+        val created: OffsetDateTime? = null,
 )
 
 /**

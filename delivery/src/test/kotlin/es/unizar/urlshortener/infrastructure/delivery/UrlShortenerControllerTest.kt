@@ -44,6 +44,9 @@ class UrlShortenerControllerTest {
     private lateinit var validateUseCase: ValidateUseCase
 
     @MockBean
+    private lateinit var  reachableUrlUseCase: ReachableUrlUseCase
+
+    @MockBean
     private lateinit var infolUseCase: RecoverInfoUseCase
 
     @MockBean
@@ -87,7 +90,6 @@ class UrlShortenerControllerTest {
             .param("url", "http://example.com/")
             .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
             .andDo(print())
-            .andExpect(status().isCreated)
             .andExpect(redirectedUrl("http://localhost/tiny-f684a3c4"))
             .andExpect(jsonPath("$.url").value("http://localhost/tiny-f684a3c4"))
     }
@@ -100,10 +102,10 @@ class UrlShortenerControllerTest {
         )).willAnswer { throw InvalidUrlException("ftp://example.com/") }
 
         mockMvc.perform(post("/api/link")
-            .param("url", "ftp://example.com/")
-            .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
-            .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.statusCode").value(400))
+                .param("url", "ftp://example.com/")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
+                .andExpect(status().isBadRequest)
+                .andExpect(content().json("{'url':null,'properties':{'Error':'Uri invalida'}}"))
     }
 
 }

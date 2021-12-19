@@ -1,6 +1,8 @@
 package es.unizar.urlshortener
 
+
 import es.unizar.urlshortener.core.QrRepositoryService
+
 import es.unizar.urlshortener.core.usecases.*
 import es.unizar.urlshortener.infrastructure.delivery.HashServiceImpl
 import es.unizar.urlshortener.infrastructure.delivery.ValidatorServiceImpl
@@ -55,18 +57,15 @@ class ApplicationConfiguration(
     @Bean
     fun hashService() = HashServiceImpl()
 
+
     @Bean
     fun infoRepositoryService() = InfoRepositoryServiceImpl(shortUrlEntityRepository, clickEntityRepository)
 
     @Bean
     @Throws(IOException::class, GeoIp2Exception::class)
     fun databaseReader(): DatabaseReader? {
-        val userDirectory: String = Paths.get("")
-            .toAbsolutePath()
-            .toString()
-        println(userDirectory)
         return DatabaseReader.Builder(
-            File("$userDirectory/src/main/resources/GeoLite2-Country.mmdb")).build()
+                ClassLoader.getSystemResourceAsStream("GeoLite2-Country.mmdb")).build()
     }
 
     @Bean
@@ -81,6 +80,9 @@ class ApplicationConfiguration(
 
     @Bean
     fun validateUseCase() = ValidateUseCaseImpl(shortUrlRepositoryService(), meterRegistry)
+
+    @Bean
+    fun ReachableUrlUseCase() = ReachableUrlUseCaseImpl()
 
     @Bean
     fun recoverInfoUseCase() = RecoverInfoUseCaseImpl(infoRepositoryService())

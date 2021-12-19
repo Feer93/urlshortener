@@ -20,6 +20,7 @@ interface ValidateUseCase {
     fun validate(url: String): ValidationResponse
     fun isSafe(url: String): ValidationResponse
     fun isValidated(hash: String): Boolean
+    fun isSafeAndReachable(hash: String): Boolean
 }
 
 const val API_URL = "https://safebrowsing.googleapis.com/v4/threatMatches:find?key=AIzaSyDiXbmdOrpATVTSu5FqGCb98jMmE6cJ-c8"
@@ -53,7 +54,7 @@ open class ValidateUseCaseImpl(
     }
 
     override fun validate(url: String): ValidationResponse {
-        return isSafe(url) /*&& isReachable(url)*/
+        return isSafe(url)
     }
 
     override fun isSafe(url: String): ValidationResponse {
@@ -89,8 +90,13 @@ open class ValidateUseCaseImpl(
 
     /* Returns if a [ShortUrl] is masked as validated. */
     override fun isValidated(hash: String) : Boolean {
-        var shortUrl: ShortUrl = shortUrlRepository.findByKey(hash)!!
-
+        val shortUrl: ShortUrl = shortUrlRepository.findByKey(hash)!!
         return shortUrl.properties.validated
     }
+
+    override fun isSafeAndReachable(hash: String): Boolean {
+        val shortUrl: ShortUrl = shortUrlRepository.findByKey(hash)!!
+        return shortUrl.properties.reachable && shortUrl.properties.safe
+    }
+
 }

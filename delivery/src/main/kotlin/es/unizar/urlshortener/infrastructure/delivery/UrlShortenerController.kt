@@ -1,17 +1,10 @@
 package es.unizar.urlshortener.infrastructure.delivery
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.maxmind.geoip2.DatabaseReader
-import es.unizar.urlshortener.core.ClickProperties
-import es.unizar.urlshortener.core.ShortUrl
-import es.unizar.urlshortener.core.ShortUrlProperties
+import es.unizar.urlshortener.core.*
+import es.unizar.urlshortener.core.blockingQueue.Scheduler
 import es.unizar.urlshortener.core.usecases.*
 import io.micrometer.core.annotation.Timed
-import io.micrometer.core.instrument.Counter
-import io.micrometer.core.instrument.Gauge
-import io.micrometer.core.instrument.MeterRegistry
-import io.micrometer.core.instrument.Metrics
-import io.micrometer.core.instrument.composite.CompositeMeterRegistry
+import io.netty.handler.codec.http.HttpHeaders.newEntity
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.HttpHeaders
@@ -19,12 +12,12 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.net.InetAddress
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import java.net.URI
-import java.util.concurrent.atomic.AtomicInteger
-import javax.servlet.http.HttpServletRequest
 import java.util.concurrent.BlockingQueue
-import es.unizar.urlshortener.core.blockingQueue.Scheduler
+import java.util.logging.Level.parse
+import javax.servlet.http.HttpServletRequest
+
 
 /**
  * The specification of the controller.
@@ -36,7 +29,7 @@ interface UrlShortenerController {
      *
      * **Note**: Delivery of use cases [RedirectUseCase] and [LogClickUseCase].
      */
-    fun redirectTo(id: String, request: HttpServletRequest): ResponseEntity<Void>
+    fun redirectTo(id: String, request: HttpServletRequest): ResponseEntity<ErrorDataOut>
 
     /**
      * Creates a short url from details provided in [data].
@@ -70,6 +63,12 @@ data class ShortUrlDataOut(
     val qr: String? = null,
     val properties: Map<String, Any> = emptyMap()
 )
+/**
+ * Data returned after error Get Request
+ */
+data class ErrorDataOut(
+        val error:String ?= null
+)
 
 /**
  * Data returned when asked for a specific QR
@@ -90,7 +89,8 @@ class UrlShortenerControllerImpl(
     val logClickUseCase: LogClickUseCase,
     val createShortUrlUseCase: CreateShortUrlUseCase,
     val createQrUseCase: CreateQrUseCase,
-    val validateUseCase: ValidateUseCase
+    val validateUseCase: ValidateUseCase,
+    val reachableUrlUseCase: ReachableUrlUseCase,
 ) : UrlShortenerController {
 
     @Autowired
@@ -99,9 +99,10 @@ class UrlShortenerControllerImpl(
     @Autowired
     private val multiThreadValidator: Scheduler? = null
 
+
     @GetMapping("/tiny-{id:.*}")
     @Timed(description = "Time spent redirecting to the original URL")
-    override fun redirectTo(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<Void> =
+    override fun redirectTo(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<ErrorDataOut> =
         redirectUseCase.redirectTo(id).let {
             logClickUseCase.logClick(id, ClickProperties(
                 ip = request.remoteAddr,
@@ -111,16 +112,30 @@ class UrlShortenerControllerImpl(
 
             //The uri is inaccessible as long as it has not been validated.
             if (validateUseCase.isValidated(id)) {
-                h.location = URI.create(it.target)
-                ResponseEntity<Void>(h, HttpStatus.valueOf(it.mode))
-            } else {       
-                ResponseEntity<Void>(h, HttpStatus.BAD_REQUEST)
+                if(validateUseCase.isSafeAndReachable(id)){
+                    h.location = URI.create(it.target)
+                    ResponseEntity<ErrorDataOut>(h, HttpStatus.valueOf(it.mode))
+                }else{
+                    val location = ServletUriComponentsBuilder
+                            .fromCurrentRequest()
+                            .path("/errorp")
+                            .buildAndExpand()
+                            .toUri()
+
+                    val re = Regex("/tiny-.*/")
+                    h.location =  URI(location.toString().replace(re,"/"))
+                    println(h.location)
+                    ResponseEntity<ErrorDataOut>(h,HttpStatus.TEMPORARY_REDIRECT)
+                }
+            } else {
+                ResponseEntity<ErrorDataOut>(ErrorDataOut(error = "URL de destino no validada todavia"),h, HttpStatus.BAD_REQUEST)
             }
         }
 
     @PostMapping("/api/link", consumes = [ MediaType.APPLICATION_FORM_URLENCODED_VALUE ])
     @Timed(description = "Time spent creating the shortened URL")
     override fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> =
+
         createShortUrlUseCase.create(
             url = data.url,
             data = ShortUrlProperties(
@@ -179,5 +194,4 @@ class UrlShortenerControllerImpl(
             return ResponseEntity<QrDataOut>(response, h, HttpStatus.NOT_FOUND)
         }
     }
-
 }

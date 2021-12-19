@@ -2,6 +2,7 @@ package es.unizar.urlshortener.core.blockingQueue
 
 import es.unizar.urlshortener.core.*
 import es.unizar.urlshortener.core.usecases.*
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
@@ -11,7 +12,8 @@ import java.util.concurrent.BlockingQueue
 @Component
 class Scheduler(
     val shortUrlRepository: ShortUrlRepositoryService,
-    val validateUseCase: ValidateUseCase
+    val validateUseCase: ValidateUseCase,
+    val reachableUseCase: ReachableUrlUseCase,
 ) {
 
     @Autowired
@@ -22,17 +24,21 @@ class Scheduler(
     fun execute() {
         val url: String = validationQueue!!.take()
 
+        val reachableResponse = reachableUseCase.isReachable(url)
         val validationResponse = validateUseCase.validate(url)
+        val shortUrl: ShortUrl = shortUrlRepository.findByUrl(url)!!
 
-        if (validationResponse == ValidationResponse.VALID) {
-            println("Es segura")
-        } else if (validationResponse == ValidationResponse.UNSAFE){
-            println("No es segura")
+        if(reachableResponse && validationResponse == ValidationResponse.VALID) {
+                shortUrl.properties.safe = true
+                // Marks shortURL as validated
+                LOGGER.info("URl validada como segura y alcanzable")
         }
-
-        //Takes the [ShortUrl] from the repository and marks it as validated
-        var shortUrl: ShortUrl = shortUrlRepository.findByUrl(url)!!
+        shortUrl.properties.reachable = reachableResponse
         shortUrl.properties.validated = true
         shortUrlRepository.save(shortUrl)
     }
+    companion object {
+        private val LOGGER = LoggerFactory.getLogger(Scheduler::class.java)
+    }
+
 }
