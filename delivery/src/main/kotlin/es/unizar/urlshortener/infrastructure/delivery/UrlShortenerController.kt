@@ -150,7 +150,6 @@ class UrlShortenerControllerImpl(
 
             //Add the url to the verification queue
             validationQueue?.put(data.url)
-            multiThreadValidator?.execute()
 
             if (data.createQr) {
                 val qrUrl = createQrUseCase.create(it.hash, url.toString())
