@@ -34,15 +34,12 @@ open class CreateShortUrlUseCaseImpl(
 
     private var shortenerCounter: Counter = Counter.builder("user.action").
         tag("type", "createShortenedURL").
-        description("Number of shortened URLs created").
         register(meterRegistry)
 
 
     private var lastMsgLength: AtomicInteger = meterRegistry.
         gauge("shortener.last.url.length", AtomicInteger())!!
 
-
-    @Async
     open fun updateMetrics(n: Int){
         shortenerCounter.increment()
         lastMsgLength.set(n)

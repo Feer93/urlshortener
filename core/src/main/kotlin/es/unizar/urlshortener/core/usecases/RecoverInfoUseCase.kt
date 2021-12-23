@@ -4,6 +4,7 @@ import es.unizar.urlshortener.core.*
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.scheduling.annotation.Async
 import org.springframework.scheduling.annotation.Scheduled
 import java.util.concurrent.TimeUnit
 
@@ -17,6 +18,11 @@ interface RecoverInfoUseCase {
     fun countRedirection(): Long
     fun recoverTopKShortenedURL(): MutableList<Pair<String, Long>>
     fun recoverTopKRedirection():  MutableList<Pair<String, Long>>
+
+    fun countURLUpdate(): Long
+    fun countRedirectionUpdate(): Long
+    fun recoverTopKShortenedURLUpdate(): MutableList<Pair<String, Long>>
+    fun recoverTopKRedirectionUpdate():  MutableList<Pair<String, Long>>
 }
 
 /**
@@ -43,22 +49,26 @@ open class RecoverInfoUseCaseImpl(
         infoService.recoverTopKRedirection(K)
 
 
-    @Scheduled(fixedRate = 60L, timeUnit = TimeUnit.SECONDS)
+    //@Async
+    //@Scheduled(fixedRate = 60L, timeUnit = TimeUnit.SECONDS)
     @CachePut("generalStats", key = "1")
-    open fun countURLUpdate(): Long = infoService.countURL()
+    override fun countURLUpdate(): Long = infoService.countURL()
 
-    @Scheduled(fixedRate = 60L, timeUnit = TimeUnit.SECONDS)
+    //@Async
+    //@Scheduled(fixedRate = 60L, timeUnit = TimeUnit.SECONDS)
     @CachePut("generalStats", key = "2")
-    open fun countRedirectionUpdate(): Long = infoService.countRedirection()
+    override fun countRedirectionUpdate(): Long = infoService.countRedirection()
 
-    @Scheduled(fixedRate = 60L, timeUnit = TimeUnit.SECONDS)
+    //@Async
+    //@Scheduled(fixedRate = 60L, timeUnit = TimeUnit.SECONDS)
     @CachePut("generalStats", key = "3")
-    open fun recoverTopKShortenedURLUpdate(): MutableList<Pair<String, Long>> =
+    override fun recoverTopKShortenedURLUpdate(): MutableList<Pair<String, Long>> =
         infoService.recoverTopKShortenedURL(K)
 
-    @Scheduled(fixedRate = 60L, timeUnit = TimeUnit.SECONDS)
+    //@Async
+    //@Scheduled(fixedRate = 60L, timeUnit = TimeUnit.SECONDS)
     @CachePut("generalStats", key = "4")
-    open fun recoverTopKRedirectionUpdate():  MutableList<Pair<String, Long>> =
+    override fun recoverTopKRedirectionUpdate():  MutableList<Pair<String, Long>> =
         infoService.recoverTopKRedirection(K)
 
 }

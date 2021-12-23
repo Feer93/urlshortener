@@ -6,6 +6,7 @@ import es.unizar.urlshortener.core.QrRepositoryService
 import es.unizar.urlshortener.core.usecases.*
 import es.unizar.urlshortener.infrastructure.delivery.HashServiceImpl
 import es.unizar.urlshortener.infrastructure.delivery.ValidatorServiceImpl
+import es.unizar.urlshortener.infrastructure.delivery.GeneralStatsJob
 import es.unizar.urlshortener.infrastructure.repositories.*
 import io.micrometer.core.aop.TimedAspect
 import io.micrometer.core.instrument.MeterRegistry
@@ -16,15 +17,16 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableAsync
 import com.maxmind.geoip2.DatabaseReader
 import com.maxmind.geoip2.exception.GeoIp2Exception
+import org.quartz.*
 import java.io.File
-
 import java.io.IOException
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager
-
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.scheduling.annotation.EnableScheduling
 import java.nio.file.Paths
+import org.quartz.SimpleScheduleBuilder.simpleSchedule
+import org.springframework.core.io.ClassPathResource
 
 
 /**
@@ -65,7 +67,7 @@ class ApplicationConfiguration(
     @Throws(IOException::class, GeoIp2Exception::class)
     fun databaseReader(): DatabaseReader? {
         return DatabaseReader.Builder(
-                ClassLoader.getSystemResourceAsStream("GeoLite2-Country.mmdb")).build()
+            ClassLoader.getSystemResourceAsStream("GeoLite2-Country.mmdb")).build()
     }
 
     @Bean

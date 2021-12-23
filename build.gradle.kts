@@ -82,6 +82,8 @@ project(":delivery") {
         "implementation"("io.micrometer:micrometer-core")
         "implementation"("io.micrometer:micrometer-registry-prometheus")
         "implementation"("com.maxmind.geoip2:geoip2:2.15.0")
+        "implementation"("org.quartz-scheduler:quartz")
+
 
         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
         "testImplementation"("org.mockito.kotlin:mockito-kotlin:3.2.0")
@@ -106,6 +108,7 @@ project(":app") {
         "implementation"( "org.webjars:bootstrap:3.3.5")
         "implementation"("org.webjars:jquery:2.1.4")
         "implementation"("com.maxmind.geoip2:geoip2:2.15.0")
+        "implementation"("org.quartz-scheduler:quartz")
         "implementation"("org.springframework.boot:spring-boot-starter-cache")
 
         "runtimeOnly"("org.hsqldb:hsqldb")
