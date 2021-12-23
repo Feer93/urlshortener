@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query
  */
 interface ShortUrlEntityRepository : JpaRepository<ShortUrlEntity, String> {
     fun findByHash(hash: String): ShortUrlEntity?
+    fun findByTarget(target: String): ShortUrlEntity?
 }
 
 interface QrEntityRepository :  JpaRepository<QrEntity, String> {

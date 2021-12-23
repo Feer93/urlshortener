@@ -1,9 +1,12 @@
 package es.unizar.urlshortener
 
+
 import es.unizar.urlshortener.core.QrRepositoryService
+
 import es.unizar.urlshortener.core.usecases.*
 import es.unizar.urlshortener.infrastructure.delivery.HashServiceImpl
 import es.unizar.urlshortener.infrastructure.delivery.ValidatorServiceImpl
+import es.unizar.urlshortener.infrastructure.delivery.GeneralStatsJob
 import es.unizar.urlshortener.infrastructure.repositories.*
 import io.micrometer.core.aop.TimedAspect
 import io.micrometer.core.instrument.MeterRegistry
@@ -14,14 +17,10 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableAsync
 import com.maxmind.geoip2.DatabaseReader
 import com.maxmind.geoip2.exception.GeoIp2Exception
-import es.unizar.urlshortener.core.usecases.*
-import es.unizar.urlshortener.infrastructure.delivery.GeneralStatsJob
 import org.quartz.*
 import java.io.File
-
 import java.io.IOException
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager
-
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.scheduling.annotation.EnableScheduling
@@ -60,6 +59,7 @@ class ApplicationConfiguration(
     @Bean
     fun hashService() = HashServiceImpl()
 
+
     @Bean
     fun infoRepositoryService() = InfoRepositoryServiceImpl(shortUrlEntityRepository, clickEntityRepository)
 
@@ -81,7 +81,10 @@ class ApplicationConfiguration(
         hashService(), meterRegistry, databaseReader())
 
     @Bean
-    fun validateUseCase() = ValidateUseCaseImpl(meterRegistry)
+    fun validateUseCase() = ValidateUseCaseImpl(shortUrlRepositoryService(), meterRegistry)
+
+    @Bean
+    fun ReachableUrlUseCase() = ReachableUrlUseCaseImpl()
 
     @Bean
     fun recoverInfoUseCase() = RecoverInfoUseCaseImpl(infoRepositoryService())

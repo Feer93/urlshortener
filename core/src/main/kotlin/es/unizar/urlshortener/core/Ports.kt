@@ -1,5 +1,7 @@
 package es.unizar.urlshortener.core
 
+import java.util.concurrent.BlockingQueue
+
 /**
  * [ClickRepositoryService] is the port to the repository that provides persistence to [Clicks][Click].
  */
@@ -12,6 +14,7 @@ interface ClickRepositoryService {
  */
 interface ShortUrlRepositoryService {
     fun findByKey(id: String): ShortUrl?
+    fun findByUrl(url: String): ShortUrl?
     fun save(su: ShortUrl): ShortUrl
 }
 
@@ -31,6 +34,7 @@ interface QrRepositoryService {
 interface ValidatorService {
     fun isValid(url: String): Boolean
 }
+
 
 /**
  * [InfoRepositoryService] is the port to the service that recovers info from the repositories.

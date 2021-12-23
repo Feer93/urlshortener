@@ -36,19 +36,9 @@ open class CreateShortUrlUseCaseImpl(
         tag("type", "createShortenedURL").
         register(meterRegistry)
 
+
     private var lastMsgLength: AtomicInteger = meterRegistry.
         gauge("shortener.last.url.length", AtomicInteger())!!
-
-    /*
-    @Autowired
-    fun initMetrics(meterRegistry: MeterRegistry){
-        shortenerCounter = Counter.builder("user.action").tag("type", "createShortenedURL")
-            .description("Number of shortened URLs created").register(meterRegistry)
-
-        //shortenerCounter = meterRegistry.counter("user.action", "type", "shortenedURL")
-
-        lastMsgLength = meterRegistry.gauge("shortener.last.url.length", AtomicInteger())!!
-    }*/
 
     open fun updateMetrics(n: Int){
         shortenerCounter.increment()
@@ -65,6 +55,7 @@ open class CreateShortUrlUseCaseImpl(
     }
 
     override fun create(url: String, data: ShortUrlProperties): ShortUrl =
+
         if (validatorService.isValid(url)) {
             val id: String = hashService.hasUrl(url)
             val su = ShortUrl(
@@ -72,6 +63,7 @@ open class CreateShortUrlUseCaseImpl(
                 redirection = Redirection(target = url),
                 properties = ShortUrlProperties(
                     safe = data.safe,
+                    reachable = data.reachable,
                     ip = data.ip,
                     sponsor = data.sponsor,
                     country = data.ip?.let { getCountry(it) },
@@ -79,9 +71,11 @@ open class CreateShortUrlUseCaseImpl(
                     created = OffsetDateTime.now()
                 )
             )
+            println(su)
             updateMetrics(url.length)
             shortUrlRepository.save(su)
         } else {
             throw InvalidUrlException(url)
         }
+
 }

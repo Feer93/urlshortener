@@ -4,7 +4,12 @@ import com.google.common.hash.Hashing
 import es.unizar.urlshortener.core.HashService
 import es.unizar.urlshortener.core.ValidatorService
 import org.apache.commons.validator.routines.UrlValidator
+import org.springframework.http.HttpStatus
+import java.net.HttpURLConnection
+import java.net.SocketTimeoutException
+import java.net.URL
 import java.nio.charset.StandardCharsets
+
 
 /**
  * Implementation of the port [ValidatorService].
