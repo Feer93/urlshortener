@@ -47,6 +47,9 @@ project(":core") {
         "implementation"("com.google.zxing:core:3.4.1")
         "implementation"("com.google.zxing:javase:3.4.1")
         "implementation"("com.maxmind.geoip2:geoip2:2.15.0")
+
+        "testImplementation"("org.springframework.boot:spring-boot-starter-test")
+        "testImplementation"("org.mockito.kotlin:mockito-kotlin:3.2.0")
     }
     tasks.getByName<BootJar>("bootJar") {
         enabled = false

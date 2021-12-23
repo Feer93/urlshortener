@@ -5,6 +5,8 @@ import es.unizar.urlshortener.core.*
 import es.unizar.urlshortener.core.usecases.*
 import io.micrometer.core.instrument.MeterRegistry
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Disabled
 import org.mockito.BDDMockito.given
 import org.mockito.BDDMockito.never
 import org.mockito.kotlin.verify
@@ -55,7 +57,8 @@ class UrlShortenerControllerTest {
     @MockBean
     private lateinit var createQrUseCase: CreateQrUseCase
 
-    /*@Test
+    @Disabled
+    @Test
     fun `redirectTo returns a redirect when the key exists`() {
         given(redirectUseCase.redirectTo("key")).willReturn(Redirection("http://example.com/"))
 
@@ -105,7 +108,6 @@ class UrlShortenerControllerTest {
                 .param("url", "ftp://example.com/")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
                 .andExpect(status().isBadRequest)
-                .andExpect(content().json("{'url':null,'properties':{'Error':'Uri invalida'}}"))
-    }*/
+    }
 
 }

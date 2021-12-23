@@ -71,7 +71,7 @@ open class CreateShortUrlUseCaseImpl(
                     created = OffsetDateTime.now()
                 )
             )
-            println(su)
+
             updateMetrics(url.length)
             shortUrlRepository.save(su)
         } else {

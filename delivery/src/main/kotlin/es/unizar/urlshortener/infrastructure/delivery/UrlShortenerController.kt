@@ -124,11 +124,11 @@ class UrlShortenerControllerImpl(
 
                     val re = Regex("/tiny-.*/")
                     h.location =  URI(location.toString().replace(re,"/"))
-                    println(h.location)
-                    ResponseEntity<ErrorDataOut>(h,HttpStatus.TEMPORARY_REDIRECT)
+
+                    ResponseEntity<ErrorDataOut>(h, HttpStatus.TEMPORARY_REDIRECT)
                 }
             } else {
-                ResponseEntity<ErrorDataOut>(ErrorDataOut(error = "URL de destino no validada todavia"),h, HttpStatus.BAD_REQUEST)
+                ResponseEntity<ErrorDataOut>(ErrorDataOut(error = "URL de destino no validada todavia"), h, HttpStatus.BAD_REQUEST)
             }
         }
 
@@ -155,21 +155,14 @@ class UrlShortenerControllerImpl(
                 val qrUrl = createQrUseCase.create(it.hash, url.toString())
                 val response = ShortUrlDataOut(
                     url = url,
-                    properties = mapOf(
-                        "safe" to it.properties.safe
-                    ),
                     qr = qrUrl
                 )
 
                 ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
             } else {
                 val response = ShortUrlDataOut(
-                    url = url,
-                    properties = mapOf(
-                        "safe" to false
-                    )
+                    url = url
                 )
-
                 ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
             }
         }

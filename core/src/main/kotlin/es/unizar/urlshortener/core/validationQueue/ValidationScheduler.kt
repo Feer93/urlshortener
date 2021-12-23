@@ -26,18 +26,16 @@ class ValidationScheduler(
         try {
 
             val url: String = validationQueue!!.take()
-
-            val reachableResponse = reachableUseCase.isReachable(url)
-            val validationResponse = validateUseCase.validate(url)
             val shortUrl: ShortUrl = shortUrlRepository.findByUrl(url)!!
 
-            if (reachableResponse && validationResponse == ValidationResponse.VALID) {
-                shortUrl.properties.safe = true
-                // Marks shortURL as validated
-                LOGGER.info("URl validada como segura y alcanzable")
-            }
-            shortUrl.properties.reachable = reachableResponse
+            /*Validates the url */
+            val isReachable = reachableUseCase.isReachable(url)
+            val isSafe = validateUseCase.isSafe(url)
+
+            shortUrl.properties.safe = isSafe
+            shortUrl.properties.reachable = isReachable
             shortUrl.properties.validated = true
+
             shortUrlRepository.save(shortUrl)
         }catch (exception : InterruptedException){
             LOGGER.info("Proceso verificador interrumpido (cierre de servidor)")
