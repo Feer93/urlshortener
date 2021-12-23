@@ -55,7 +55,7 @@ class UrlShortenerControllerTest {
     @MockBean
     private lateinit var createQrUseCase: CreateQrUseCase
 
-    @Test
+    /*@Test
     fun `redirectTo returns a redirect when the key exists`() {
         given(redirectUseCase.redirectTo("key")).willReturn(Redirection("http://example.com/"))
 
@@ -106,6 +106,6 @@ class UrlShortenerControllerTest {
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
                 .andExpect(status().isBadRequest)
                 .andExpect(content().json("{'url':null,'properties':{'Error':'Uri invalida'}}"))
-    }
+    }*/
 
 }

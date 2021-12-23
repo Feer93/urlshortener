@@ -1,4 +1,4 @@
-package es.unizar.urlshortener.core.blockingQueue
+package es.unizar.urlshortener.core.validationQueue
 
 import es.unizar.urlshortener.core.*
 import es.unizar.urlshortener.core.usecases.*
@@ -11,7 +11,7 @@ import java.util.concurrent.BlockingQueue
 
 
 @Component
-class Scheduler(
+class ValidationScheduler(
     val shortUrlRepository: ShortUrlRepositoryService,
     val validateUseCase: ValidateUseCase,
     val reachableUseCase: ReachableUrlUseCase,
@@ -45,7 +45,7 @@ class Scheduler(
     }
 
     companion object {
-        private val LOGGER = LoggerFactory.getLogger(Scheduler::class.java)
+        private val LOGGER = LoggerFactory.getLogger(ValidationScheduler::class.java)
     }
 
 }

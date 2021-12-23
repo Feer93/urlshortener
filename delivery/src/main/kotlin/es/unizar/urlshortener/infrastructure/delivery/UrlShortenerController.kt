@@ -1,7 +1,7 @@
 package es.unizar.urlshortener.infrastructure.delivery
 
 import es.unizar.urlshortener.core.*
-import es.unizar.urlshortener.core.blockingQueue.Scheduler
+import es.unizar.urlshortener.core.validationQueue.ValidationScheduler
 import es.unizar.urlshortener.core.usecases.*
 import io.micrometer.core.annotation.Timed
 import io.netty.handler.codec.http.HttpHeaders.newEntity
@@ -97,7 +97,7 @@ class UrlShortenerControllerImpl(
     private val validationQueue: BlockingQueue<String>? = null
 
     @Autowired
-    private val multiThreadValidator: Scheduler? = null
+    private val multiThreadValidator: ValidationScheduler? = null
 
 
     @GetMapping("/tiny-{id:.*}")
