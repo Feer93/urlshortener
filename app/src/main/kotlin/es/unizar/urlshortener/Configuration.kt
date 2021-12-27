@@ -84,7 +84,7 @@ class ApplicationConfiguration(
     fun validateUseCase() = ValidateUseCaseImpl(shortUrlRepositoryService(), meterRegistry)
 
     @Bean
-    fun ReachableUrlUseCase() = ReachableUrlUseCaseImpl()
+    fun ReachableUrlUseCase() = ReachableUrlUseCaseImpl(meterRegistry)
 
     @Bean
     fun recoverInfoUseCase() = RecoverInfoUseCaseImpl(infoRepositoryService())

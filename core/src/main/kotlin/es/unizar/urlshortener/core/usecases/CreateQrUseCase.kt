@@ -32,12 +32,17 @@ open class CreateQrUseCaseImpl  (
     private val meterRegistry: MeterRegistry
     ) : CreateQrUseCase {
 
+    /**
+     * Counter to count the number of times a qr is used
+     */
     private var qrCounter: Counter = Counter.builder("user.action").
         tag("type", "qrUsed").
-        description("Number of QRs used").
         register(meterRegistry)
 
-    @Async
+    /**
+     * Increment in 1 the value of the counter
+     */
+    //@Async
     open fun updateQrCounter(){
         qrCounter.increment()
     }
