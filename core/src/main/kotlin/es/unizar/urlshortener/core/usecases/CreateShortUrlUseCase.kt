@@ -32,14 +32,24 @@ open class CreateShortUrlUseCaseImpl(
     private val databaseReader: DatabaseReader?
 ) : CreateShortUrlUseCase {
 
+    /**
+     * Counter to count the number of created shortened URL
+     */
     private var shortenerCounter: Counter = Counter.builder("user.action").
         tag("type", "createShortenedURL").
         register(meterRegistry)
 
 
+    /**
+     * Gauge that stores the length of the last URL sent to shorten
+     */
     private var lastMsgLength: AtomicInteger = meterRegistry.
         gauge("shortener.last.url.length", AtomicInteger())!!
 
+    /**
+     *  Increment in 1 the value of the counter and update the value that stores
+     *  the length of the last URL sent to shorten
+     */
     open fun updateMetrics(n: Int){
         shortenerCounter.increment()
         lastMsgLength.set(n)

@@ -28,18 +28,31 @@ open class ValidateUseCaseImpl(
 
     @Autowired lateinit var restTemplate: RestTemplate
 
+    /**
+     * Counter to count the number of valid URL given to shorten
+     */
     private var validCounter: Counter = Counter.builder("validate.url").
         tag("type", "validURL").
         register(meterRegistry)
 
+    /**
+     * Counter to count the number of invalid URL given to shorten
+     */
     private var invalidCounter: Counter = Counter.builder("validate.url").
         tag("type", "invalidURL").
         register(meterRegistry)
 
+
+    /**
+     *  Increment in 1 the value of the counter of valid URL
+     */
     open fun updateValid(){
         validCounter.increment()
     }
 
+    /**
+     *  Increment in 1 the value of the counter of invalid URL
+     */
     open fun updateInvalid(){
         invalidCounter.increment()
     }
