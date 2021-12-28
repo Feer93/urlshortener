@@ -16,7 +16,7 @@ import org.springframework.http.HttpEntity
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 import com.fasterxml.jackson.databind.ObjectMapper
-import es.unizar.urlshortener.infrastructure.delivery.QrDataOut
+import org.junit.jupiter.api.Disabled
 
 
 /**
@@ -39,7 +39,7 @@ import es.unizar.urlshortener.infrastructure.delivery.QrDataOut
  *
  */
 
-
+@Disabled
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class MetricsTest {
 
@@ -55,7 +55,7 @@ class MetricsTest {
     @Test
     fun `check it is up`() {
 
-        var response = restTemplate.getForEntity("http://localhost:$port/health", String::class.java)
+        val response = restTemplate.getForEntity("http://localhost:$port/health", String::class.java)
         assertEquals(HttpStatus.OK, response.statusCode)
     }
 
@@ -66,12 +66,12 @@ class MetricsTest {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_FORM_URLENCODED
 
-        val map: MultiValueMap<String, String> = LinkedMultiValueMap<String, String>()
+        val map: MultiValueMap<String, String> = LinkedMultiValueMap()
         map.add("url", "http://www.unizar.es")
 
         //Shorten a URL
         val request: HttpEntity<MultiValueMap<String, String>> = HttpEntity(map, headers)
-        var response = restTemplate.postForEntity("http://localhost:$port/api/link",
+        val response = restTemplate.postForEntity("http://localhost:$port/api/link",
             request, ShortUrlDataOut::class.java)
         assertEquals(HttpStatus.CREATED, response.statusCode)
         assertEquals("http://localhost:$port/tiny-4392f73f", response.body?.url.toString())
@@ -79,7 +79,7 @@ class MetricsTest {
         Thread.sleep(1000)
 
         //Access a shortened URL
-        var response2 = restTemplate.getForEntity(response.body?.url.toString(), ErrorDataOut::class.java)
+        val response2 = restTemplate.getForEntity(response.body?.url.toString(), ErrorDataOut::class.java)
         assertEquals(HttpStatus.TEMPORARY_REDIRECT, response2.statusCode)
 
 
