@@ -1,0 +1,76 @@
+openapi: 3.0.3
+info:
+  title: urlshortener
+  description: This is a urlshortener server
+  version: 1.0.0
+#servers:
+# - url: 'http://localhost:8080/'
+paths:
+  '/{hash}.json':
+    get:
+      summary: Obtain general stats
+      description: Calculate general stats of the application
+      operationId: statsGeneral
+
+      parameters:
+        - name: hash
+          in: path
+          description: Any name you want to enter
+          required: true
+          schema:
+            type: string
+
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralStats'
+        '400':
+          description: Invalid name supplied
+
+components:
+  schemas:
+    GeneralStats:
+      title: General Stats
+      description: General Stats from the application
+      type: object
+      properties:
+        description:
+          description: Name given
+          type: string
+        totalShortenedURL:
+          description: Total number of shortened URL
+          type: integer
+          format: int64
+        totalClicks:
+          description: Total number of redirections made using a shortened URL
+          type: integer
+          format: int64
+        top100clickedShortenedURL:
+          description: Top 100 shortened URL by number of times they were used (clicked)
+          type: array
+          items:
+            type: object
+            properties:
+              first:
+                description: Hash code that identifies the shortened URL
+                type: string
+              second:
+                description: Number of times the URL was used
+                type: integer
+                format: int64
+        top100hostsWithShortenedURL:
+          description: Top 100 hosts by the number of shortened URL they have
+          type: array
+          items:
+            type: object
+            properties:
+              first:
+                description: Host
+                type: string
+              second:
+                description: Number of shortened URL of the host
+                type: integer
+                format: int64

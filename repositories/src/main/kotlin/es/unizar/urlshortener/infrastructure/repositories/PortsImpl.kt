@@ -37,6 +37,9 @@ class QrRepositoryServiceImpl(
     override fun save(qrImage: QrImage): QrImage = qrEntityRepository.save(qrImage.toEntity()).toDomain()
 }
 
+/**
+ * Implementation of the port [InfoRepositoryService].
+ */
 class InfoRepositoryServiceImpl(
     private val shortUrlEntityRepository: ShortUrlEntityRepository,
     private val clickEntityRepository: ClickEntityRepository
