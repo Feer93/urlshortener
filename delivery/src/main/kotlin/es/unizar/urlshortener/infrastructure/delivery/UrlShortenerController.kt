@@ -5,7 +5,16 @@ import es.unizar.urlshortener.core.validationQueue.ValidationScheduler
 import es.unizar.urlshortener.core.usecases.*
 import io.micrometer.core.annotation.Timed
 import io.netty.handler.codec.http.HttpHeaders.newEntity
+import io.swagger.annotations.ApiParam
+import io.swagger.annotations.ApiResponse
+import io.swagger.annotations.ApiResponses
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.links.Link
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.ExampleObject
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -15,8 +24,8 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import java.net.URI
 import java.util.concurrent.BlockingQueue
-import java.util.logging.Level.parse
 import javax.servlet.http.HttpServletRequest
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 
 /**
@@ -99,7 +108,30 @@ class UrlShortenerControllerImpl(
     @Autowired
     private val multiThreadValidator: ValidationScheduler? = null
 
+    @Operation(summary = "Redirects to a specific URL given a shorten URL")
+    @io.swagger.v3.oas.annotations.responses.ApiResponses(
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "303",
+                    description = "Redirect to the given URL",
+                    content = [Content(mediaType = "html-page",
+                            examples = [ExampleObject(summary = "Redirects the user to the given shorten URL",name = "URL validated as safe and reachable.")]
+                    )]
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400",
+                    description = "URL has not been validated yet",
+                    content = [Content(mediaType = "application/json",
+                            examples = [ExampleObject(value = "{'error': Error URL no validada todavía }",name = "The URL hasnt been procesed yet.")]
+                            )]
 
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "307",
+                    description = "URL not safe or not reachable",
+                    links = [ Link(ref= "http://localhost:8080/errorp")]
+            )
+
+    )
     @GetMapping("/tiny-{id:.*}")
     @Timed(description = "Time spent redirecting to the original URL")
     override fun redirectTo(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<ErrorDataOut> =
