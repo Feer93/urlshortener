@@ -1,4 +1,4 @@
-package swagger
+package es.unizar.urlshortener
 
 import com.google.common.collect.Sets
 import org.springframework.context.annotation.Bean
@@ -23,18 +23,19 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
  */
 @Configuration
 @EnableSwagger2
-class SwaggerConfig {
+class SwaggerConf {
 
     @Bean
     fun api(): Docket {
         return Docket(DocumentationType.SWAGGER_2)
+                .useDefaultResponseMessages(false)
                 .protocols(Sets.newHashSet("http", "https"))
                 .apiInfo(getInfo())
-                .useDefaultResponseMessages(false)
                 .select()
                 .apis(RequestHandlerSelectors.any())
                 .paths(PathSelectors.any())
                 .build()
+                .apiInfo(getInfo())
     }
 
     private fun getInfo(): ApiInfo {
