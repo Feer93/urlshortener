@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Disabled
 
 
 /**
+ *
  * Documentación métricas
  *
  * Hay diferentes tipos de métricas según los usos, las cuales siguen la documentación descrita en
@@ -28,14 +29,44 @@ import org.junit.jupiter.api.Disabled
  *
  * Las métricas presentes son las siguientes:
  *  - Todas las métricas por defecto del actuator, las cuales están en la documentación del actuator también
- *  - Una métrica para registrar acciones de los usuarios accesible mediante /metrics/user.action y que tiene
+ *
+ *  - Métricas que recogen tiempos de ejecución de los controladores en /method/timed , donde se puede
+ *    elegir el metodo del que recuperar informacion, siendo recogida la informacion mediante la etiqueta
+ *    @Timed por lo que para mas informacion mirar en la documentacion se Spring.
+ *
+ *  - Una métrica que sirve para registrar acciones de los usuarios accesible mediante /metrics/user.action y que tiene
  *    un tag llamado "type" para dividir esta métrica según el tipo de acción que puede ser: hacer click en una URL
  *    ("clickedURL"), crear una URL recortada ("createShortenedURL") o solicitar el qr de una URL ("qrUsed"). Un
  *    ejemplo de uso sería acceder a /metrics/user.action?tag=type:qrUsed , dónde se mostrará la información de la
- *    métrica "qrUsed".
+ *    métrica "qrUsed". Esta metrica se basa en contadores.
+ *
+ *  - Una métrica que sirve para registrar los clicks de los usuarios URL especificas mediante /metrics/user.click.hash
+ *    y que tiene un tag llamado "hash" para indicar el hash de la URL recortada del que se quiere recuperar información. Un
+ *    Por ejemplo de uso sería acceder a /metrics/user.click.hash?tag=hash:<hash> , dónde se mostrará la información de
+ *    la métrica para el hash introducido. Esta metrica se basa en contadores.
+ *
+ *  - Una métrica para registrar la longitud de la última URL a recortar en /metrics/shortener.last.url.length .
+ *    A diferencia de otras métricas no hay ningún tag y está basada en un valor.
+ *
+ *  - Una métrica que sirve para registrar si una URL es valida o no mediante /metrics/validate.url y que tiene
+ *    un tag llamado "type" para dividir esta métrica según si es valida la URL ("validURL") o no ("invalidURL").
+ *    Un ejemplo de uso sería acceder a /metrics/validate.url?tag=type:invalidURL , dónde se mostrará la
+ *    información de la métrica "invalidURL". Esta metrica se basa en contadores.
+ *
+ *  - Una métrica que sirve para registrar si una URL es alcanzable o no mediante /metrics/reach.url y que tiene
+ *    un tag llamado "type" para dividir esta métrica según si es alcanzable la URL ("reachableURL") o no
+ *    ("unreachableURL"). Un ejemplo de uso sería acceder a /metrics/reach.url?tag=type:unreachableURL , dónde se
+ *    mostrará la información de la métrica "unreachableURL". Esta metrica se basa en contadores.
  *
  *
- *  ...
+ * Documentación health
+ *
+ * Hay diversos componentes de los que dependen, entre ellos estan los componentes por defecto del endpoint y
+ * tambien esta otro componente extra para ver si el servicio del que depende la comprobacion de la validez
+ * de las URL a recortar esta caido o no ya que esto influye directamente en la aplicacion. Para mas informacion
+ * consultar la documentacion de Spring: https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html
+ * ,teniendo en cuenta que el endpoint es en nuestra aplicación /health y no /actuator/health
+ *
  *
  */
 
