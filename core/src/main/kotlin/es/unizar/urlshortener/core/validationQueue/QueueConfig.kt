@@ -9,6 +9,7 @@ import java.net.URL
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.Executor
 import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
 
 @Configuration
 @EnableAsync
@@ -24,6 +25,7 @@ class QueueConfig {
         executor.corePoolSize = 20
         executor.maxPoolSize = 20
         executor.setQueueCapacity(1000)
+        executor.setRejectedExecutionHandler(ThreadPoolExecutor.DiscardOldestPolicy ())
         executor.setThreadNamePrefix("ValidatorExec-")
         executor.initialize()
         return executor

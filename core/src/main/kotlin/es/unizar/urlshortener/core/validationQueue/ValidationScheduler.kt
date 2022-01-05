@@ -21,11 +21,12 @@ class ValidationScheduler(
     private val validationQueue: BlockingQueue<String>? = null
 
     @Async("validationExecutor")
-    @Scheduled(fixedRate = 500)
+    @Scheduled(fixedDelay = 500L)
     fun execute() {
         try {
-
+            LOGGER.info("Waiting for validation: ")
             val url: String = validationQueue!!.take()
+            LOGGER.info("Validating an URL")
             val shortUrl: ShortUrl = shortUrlRepository.findByUrl(url)!!
 
             /*Validates the url */

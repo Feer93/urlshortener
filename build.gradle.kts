@@ -47,7 +47,7 @@ project(":core") {
         "implementation"("com.google.zxing:core:3.4.1")
         "implementation"("com.google.zxing:javase:3.4.1")
         "implementation"("com.maxmind.geoip2:geoip2:2.15.0")
-
+        //Testing
         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
         "testImplementation"("org.mockito.kotlin:mockito-kotlin:3.2.0")
     }
@@ -86,7 +86,11 @@ project(":delivery") {
         "implementation"("io.micrometer:micrometer-registry-prometheus")
         "implementation"("com.maxmind.geoip2:geoip2:2.15.0")
         "implementation"("org.quartz-scheduler:quartz")
-
+        //Swagger and Open API dependencies
+        "implementation" ("org.springdoc:springdoc-openapi-ui:1.5.2")
+        "implementation" ("io.springfox:springfox-swagger2:2.9.2")
+        "implementation" ("io.springfox:springfox-swagger-ui:2.9.2")
+        "implementation"("io.springfox:springfox-boot-starter:3.0.0")
 
         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
         "testImplementation"("org.mockito.kotlin:mockito-kotlin:3.2.0")
@@ -113,8 +117,15 @@ project(":app") {
         "implementation"("com.maxmind.geoip2:geoip2:2.15.0")
         "implementation"("org.quartz-scheduler:quartz")
         "implementation"("org.springframework.boot:spring-boot-starter-cache")
+        "implementation"("com.google.guava:guava:23.0")
 
         "runtimeOnly"("org.hsqldb:hsqldb")
+
+        //Swagger and Open API dependencies
+        "implementation" ("org.springdoc:springdoc-openapi-ui:1.5.2")
+        "implementation" ("io.springfox:springfox-swagger2:3.0.0")
+        "implementation" ("io.springfox:springfox-swagger-ui:3.0.0")
+        "implementation"("io.springfox:springfox-boot-starter:3.0.0")
 
         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
         "testImplementation"("org.springframework.boot:spring-boot-starter-web")
