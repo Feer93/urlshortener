@@ -6,7 +6,6 @@ import es.unizar.urlshortener.core.QrRepositoryService
 import es.unizar.urlshortener.core.usecases.*
 import es.unizar.urlshortener.infrastructure.delivery.HashServiceImpl
 import es.unizar.urlshortener.infrastructure.delivery.ValidatorServiceImpl
-import es.unizar.urlshortener.infrastructure.delivery.GeneralStatsJob
 import es.unizar.urlshortener.infrastructure.repositories.*
 import io.micrometer.core.aop.TimedAspect
 import io.micrometer.core.instrument.MeterRegistry

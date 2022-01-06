@@ -8,7 +8,6 @@ import io.micrometer.core.annotation.Timed
 import es.unizar.urlshortener.core.*
 import es.unizar.urlshortener.core.validationQueue.ValidationScheduler
 import es.unizar.urlshortener.core.usecases.*
-import io.micrometer.core.annotation.Timed
 import io.netty.handler.codec.http.HttpHeaders.newEntity
 import io.swagger.annotations.ApiParam
 import io.swagger.annotations.ApiResponse
@@ -29,7 +28,6 @@ import org.springframework.web.bind.annotation.*
 import java.net.URI
 import java.util.concurrent.*
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
-import java.net.URI
 import java.util.concurrent.BlockingQueue
 import javax.servlet.http.HttpServletRequest
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
