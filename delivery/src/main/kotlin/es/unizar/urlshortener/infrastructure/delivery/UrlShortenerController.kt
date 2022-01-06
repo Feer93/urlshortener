@@ -2,16 +2,14 @@ package es.unizar.urlshortener.infrastructure.delivery
 
 import es.unizar.urlshortener.core.ClickProperties
 import es.unizar.urlshortener.core.ShortUrlProperties
-import es.unizar.urlshortener.core.qrQueue.MyCallable
+import es.unizar.urlshortener.core.qrSchedule.QrCallable
 import es.unizar.urlshortener.core.usecases.*
 import io.micrometer.core.annotation.Timed
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.scheduling.annotation.Async
 import org.springframework.web.bind.annotation.*
 import java.net.URI
 import java.util.concurrent.*
@@ -84,29 +82,7 @@ class UrlShortenerControllerImpl(
     val validateUseCase: ValidateUseCase
 ) : UrlShortenerController {
 
-    @Autowired
-    private val qrQueue : BlockingQueue<String>? = null
-
-
-    private val executor = Executors.newFixedThreadPool(2) as ThreadPoolExecutor
-
-
-    @Autowired
-    private val multiThreadDownloader: es.unizar.urlshortener.core.blockingQueue.QrScheduler? = null
-
-    @Async
-    fun startScrapping(url: String) : CompletableFuture<String?> {
-
-        // Añadimos las URLs a la blockingqueue
-        qrQueue?.put(url)
-        // Empezamos a schedulear las URLs
-        val futureReturn: Future<String>? = multiThreadDownloader?.scheduleEachUrlForDownload(createQrUseCase)
-        val resultado = futureReturn?.get()
-        return  CompletableFuture.completedFuture(resultado);
-
-    }
-
-
+    private val qrExecutor = Executors.newFixedThreadPool(2) as ThreadPoolExecutor
 
 
     @GetMapping("/tiny-{id:.*}")
@@ -150,17 +126,14 @@ class UrlShortenerControllerImpl(
 
                 if (data.createQr) {
 
-                    val thread = executor.submit(MyCallable(createQrUseCase, data.url, it.hash))
-
-                    System.out.println(thread.get())
-                    System.out.println("Aaaaaaaaa\n\n\n\n")
+                    val futureQr = qrExecutor.submit(QrCallable(createQrUseCase, data.url, it.hash))
 
                     val response = ShortUrlDataOut(
                         url = url,
                         properties = mapOf(
                             "safe" to it.properties.safe
                         ),
-                        qr = thread.get()
+                        qr = futureQr.get()
                     )
 
                     ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
@@ -183,7 +156,8 @@ class UrlShortenerControllerImpl(
         val h = HttpHeaders()
 
         val qrImage = createQrUseCase.get(hash)
-        if (qrImage != "") {
+
+        if (qrImage != null) {
             val response = QrDataOut(
                 image = qrImage
             )
@@ -191,7 +165,7 @@ class UrlShortenerControllerImpl(
 
         } else {
             val response = QrDataOut(
-                error = "URL de destino no validada todavía"
+                error = "La imagen QR no existe"
             )
             return ResponseEntity<QrDataOut>(response, h, HttpStatus.NOT_FOUND)
         }

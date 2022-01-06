@@ -1,12 +1,12 @@
-package es.unizar.urlshortener.core.qrQueue
+package es.unizar.urlshortener.core.qrSchedule
 
 import es.unizar.urlshortener.core.usecases.CreateQrUseCase
 import es.unizar.urlshortener.core.usecases.CreateQrUseCaseImpl
-import java.util.*
+import org.slf4j.LoggerFactory
 import java.util.concurrent.*
 
 
-class MyCallable : Callable<String> {
+class QrCallable : Callable<String> {
 
     private var createQrUseCase : CreateQrUseCase? = null
     private var url : String? = null
@@ -23,9 +23,7 @@ class MyCallable : Callable<String> {
     override fun call(): String {
 
         val qr = createQrUseCase?.create(url, hash)
-        System.out.println(Thread.currentThread().name)
-        Thread.sleep(5000)
-        //return the thread name executing this callable task
+        Logger.info(Thread.currentThread().id.toString())
 
         if (qr != null) {
             return qr.get()
@@ -34,6 +32,9 @@ class MyCallable : Callable<String> {
         return ""
     }
 
+    companion object {
+        private val Logger = LoggerFactory.getLogger(QrCallable::class.java)
+    }
 
 
 
