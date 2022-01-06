@@ -32,24 +32,24 @@ open class CreateShortUrlUseCaseImpl(
     private val databaseReader: DatabaseReader?
 ) : CreateShortUrlUseCase {
 
+    /**
+     * Counter to count the number of created shortened URL
+     */
     private var shortenerCounter: Counter = Counter.builder("user.action").
         tag("type", "createShortenedURL").
         register(meterRegistry)
 
+
+    /**
+     * Gauge that stores the length of the last URL sent to shorten
+     */
     private var lastMsgLength: AtomicInteger = meterRegistry.
         gauge("shortener.last.url.length", AtomicInteger())!!
 
-    /*
-    @Autowired
-    fun initMetrics(meterRegistry: MeterRegistry){
-        shortenerCounter = Counter.builder("user.action").tag("type", "createShortenedURL")
-            .description("Number of shortened URLs created").register(meterRegistry)
-
-        //shortenerCounter = meterRegistry.counter("user.action", "type", "shortenedURL")
-
-        lastMsgLength = meterRegistry.gauge("shortener.last.url.length", AtomicInteger())!!
-    }*/
-
+    /**
+     *  Increment in 1 the value of the counter and update the value that stores
+     *  the length of the last URL sent to shorten
+     */
     open fun updateMetrics(n: Int){
         shortenerCounter.increment()
         lastMsgLength.set(n)
@@ -65,6 +65,7 @@ open class CreateShortUrlUseCaseImpl(
     }
 
     override fun create(url: String, data: ShortUrlProperties): ShortUrl =
+
         if (validatorService.isValid(url)) {
             val id: String = hashService.hasUrl(url)
             val su = ShortUrl(
@@ -72,6 +73,7 @@ open class CreateShortUrlUseCaseImpl(
                 redirection = Redirection(target = url),
                 properties = ShortUrlProperties(
                     safe = data.safe,
+                    reachable = data.reachable,
                     ip = data.ip,
                     sponsor = data.sponsor,
                     country = data.ip?.let { getCountry(it) },
@@ -79,9 +81,11 @@ open class CreateShortUrlUseCaseImpl(
                     created = OffsetDateTime.now()
                 )
             )
+
             updateMetrics(url.length)
             shortUrlRepository.save(su)
         } else {
             throw InvalidUrlException(url)
         }
+
 }

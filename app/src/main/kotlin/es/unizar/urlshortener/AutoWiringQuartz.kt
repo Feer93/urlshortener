@@ -10,7 +10,7 @@ import java.lang.Exception
 
 
 /**
- * Adds auto-wiring support to quartz jobs.
+ * Adds auto-wiring support to quartz scheduler jobs.
  * Reference: "https://gist.github.com/jelies/5085593"
  */
 class AutoWiringSpringBeanJobFactory : SpringBeanJobFactory(), ApplicationContextAware {

@@ -1,7 +1,6 @@
 package es.unizar.urlshortener.infrastructure.delivery
 
 import es.unizar.urlshortener.core.usecases.ValidateUseCase
-import es.unizar.urlshortener.core.usecases.ValidationResponse
 import org.springframework.boot.actuate.health.Health
 import org.springframework.boot.actuate.health.ReactiveHealthIndicator
 import org.springframework.stereotype.Component
@@ -35,7 +34,7 @@ class ValidationServiceHealthIndicator(
 
          */
 
-        return if (validator.isSafe("https://www.google.com/") == ValidationResponse.VALID) {
+        return if (validator.isSafe("https://www.google.com/")) {
             Mono.just(
                 Health.Builder().up().withDetail("Service", service).build()
             )

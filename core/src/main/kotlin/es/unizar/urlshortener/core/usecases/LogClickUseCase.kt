@@ -30,10 +30,16 @@ open class LogClickUseCaseImpl(
     private val databaseReader: DatabaseReader?
 ) : LogClickUseCase {
 
+    /**
+     * Counter to count the number of times a shortened URL is used
+     */
     private var redirectionCounter: Counter = Counter.builder("user.action").
         tag("type", "clickedURL").
         register(meterRegistry)
 
+    /**
+     * Counter to count the number of times a specific shortened URL is used
+     */
     private val hashCounter = HashCounter("user.click.hash", "hash", meterRegistry)
 
     /*
@@ -54,6 +60,10 @@ open class LogClickUseCaseImpl(
         }
     }
 
+    /**
+     *  Increment in 1 the value of the counters, where key is the hash
+     *  of the shortened URL used.
+     */
     @Async
     open fun updateMetrics(key: String){
         redirectionCounter.increment()

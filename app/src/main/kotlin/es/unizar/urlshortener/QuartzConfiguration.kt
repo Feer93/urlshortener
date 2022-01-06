@@ -7,7 +7,6 @@ import es.unizar.urlshortener.infrastructure.delivery.GeneralStatsJob
 import org.quartz.*
 
 import org.springframework.scheduling.annotation.EnableScheduling
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.context.ApplicationContext
 
 import org.springframework.scheduling.quartz.SpringBeanJobFactory
@@ -21,19 +20,20 @@ import org.quartz.SimpleTrigger
 import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean
 
 import org.springframework.scheduling.quartz.JobDetailFactoryBean
-import java.nio.file.Paths
 
 
 /**
- * Quartz configuration
+ * Quartz scheduler configuration
  */
 @Configuration
-//@EnableAutoConfiguration
 @EnableScheduling
 class QuartzScheduler(
     @Autowired val applicationContext: ApplicationContext
 ) {
 
+    /**
+     * Apply context and auto-wire support to the scheduler
+     */
     @Bean
     fun springBeanJobFactory(): SpringBeanJobFactory {
         val jobFactory = AutoWiringSpringBeanJobFactory()
@@ -41,6 +41,11 @@ class QuartzScheduler(
         return jobFactory
     }
 
+    /**
+     * Schedule a job with all of its components and using
+     * a configuration file to establish some of the behaviour
+     * of the scheduler
+     */
     @Bean
     fun scheduler(trigger: Trigger, job: JobDetail): SchedulerFactoryBean {
         val schedulerFactory = SchedulerFactoryBean()
@@ -52,6 +57,9 @@ class QuartzScheduler(
         return schedulerFactory
     }
 
+    /**
+     * Get the job and define some meta-data
+     */
     @Bean
     fun jobDetail(): JobDetailFactoryBean {
         val jobDetailFactory = JobDetailFactoryBean()
@@ -62,6 +70,9 @@ class QuartzScheduler(
         return jobDetailFactory
     }
 
+    /**
+     * Establish when to execute a job
+     */
     @Bean
     fun trigger(job: JobDetail): SimpleTriggerFactoryBean {
         val trigger = SimpleTriggerFactoryBean()
