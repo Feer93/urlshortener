@@ -1,5 +1,10 @@
 package es.unizar.urlshortener.infrastructure.delivery
 
+import es.unizar.urlshortener.core.ClickProperties
+import es.unizar.urlshortener.core.ShortUrlProperties
+import es.unizar.urlshortener.core.qrSchedule.QrCallable
+import es.unizar.urlshortener.core.usecases.*
+import io.micrometer.core.annotation.Timed
 import es.unizar.urlshortener.core.*
 import es.unizar.urlshortener.core.validationQueue.ValidationScheduler
 import es.unizar.urlshortener.core.usecases.*
@@ -21,6 +26,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.net.URI
+import java.util.concurrent.*
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import java.net.URI
 import java.util.concurrent.BlockingQueue
@@ -102,6 +109,8 @@ class UrlShortenerControllerImpl(
     val reachableUrlUseCase: ReachableUrlUseCase,
 ) : UrlShortenerController {
 
+    private val qrExecutor = Executors.newFixedThreadPool(20) as ThreadPoolExecutor
+
     @Autowired
     private val validationQueue: BlockingQueue<String>? = null
 
@@ -132,6 +141,7 @@ class UrlShortenerControllerImpl(
             )
 
     )
+
     @GetMapping("/tiny-{id:.*}")
     @Timed(description = "Time spent redirecting to the original URL")
     override fun redirectTo(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<ErrorDataOut> =
@@ -184,10 +194,10 @@ class UrlShortenerControllerImpl(
             validationQueue?.put(data.url)
 
             if (data.createQr) {
-                val qrUrl = createQrUseCase.create(it.hash, url.toString())
+                val futureQr = qrExecutor.submit(QrCallable(createQrUseCase, data.url, it.hash))
                 val response = ShortUrlDataOut(
                     url = url,
-                    qr = qrUrl
+                    qr = futureQr.get()
                 )
 
                 ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
@@ -198,14 +208,15 @@ class UrlShortenerControllerImpl(
                 ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
             }
         }
-
+        
     @GetMapping("/qr/{hash}")
     @Timed(description = "Time spent returning the QR image")
     override fun getQr(@PathVariable hash: String, request: HttpServletRequest): ResponseEntity<QrDataOut> {
         val h = HttpHeaders()
 
         val qrImage = createQrUseCase.get(hash)
-        if (qrImage != "") {
+
+        if (qrImage != null) {
             val response = QrDataOut(
                 image = qrImage
             )
@@ -213,7 +224,7 @@ class UrlShortenerControllerImpl(
 
         } else {
             val response = QrDataOut(
-                error = "URL de destino no validada todavía"
+                error = "La imagen QR no existe"
             )
             return ResponseEntity<QrDataOut>(response, h, HttpStatus.NOT_FOUND)
         }

@@ -17,6 +17,9 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableAsync
 import com.maxmind.geoip2.DatabaseReader
 import com.maxmind.geoip2.exception.GeoIp2Exception
+import es.unizar.urlshortener.core.HashService
+import es.unizar.urlshortener.core.usecases.*
+import es.unizar.urlshortener.infrastructure.delivery.GeneralStatsJob
 import org.quartz.*
 import java.io.File
 import java.io.IOException
