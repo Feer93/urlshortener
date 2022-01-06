@@ -82,7 +82,7 @@ class UrlShortenerControllerImpl(
     val validateUseCase: ValidateUseCase
 ) : UrlShortenerController {
 
-    private val qrExecutor = Executors.newFixedThreadPool(2) as ThreadPoolExecutor
+    private val qrExecutor = Executors.newFixedThreadPool(20) as ThreadPoolExecutor
 
 
     @GetMapping("/tiny-{id:.*}")
@@ -123,7 +123,6 @@ class UrlShortenerControllerImpl(
                 )
                 ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.BAD_REQUEST)
             } else {
-
                 if (data.createQr) {
 
                     val futureQr = qrExecutor.submit(QrCallable(createQrUseCase, data.url, it.hash))
