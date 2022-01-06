@@ -1,27 +1,20 @@
 package es.unizar.urlshortener.infrastructure.delivery
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.maxmind.geoip2.DatabaseReader
 import es.unizar.urlshortener.core.ClickProperties
-import es.unizar.urlshortener.core.ShortUrl
 import es.unizar.urlshortener.core.ShortUrlProperties
+import es.unizar.urlshortener.core.qrQueue.MyCallable
 import es.unizar.urlshortener.core.usecases.*
 import io.micrometer.core.annotation.Timed
-import io.micrometer.core.instrument.Counter
-import io.micrometer.core.instrument.Gauge
-import io.micrometer.core.instrument.MeterRegistry
-import io.micrometer.core.instrument.Metrics
-import io.micrometer.core.instrument.composite.CompositeMeterRegistry
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.scheduling.annotation.Async
 import org.springframework.web.bind.annotation.*
-import java.net.InetAddress
 import java.net.URI
-import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.*
 import javax.servlet.http.HttpServletRequest
 
 /**
@@ -91,6 +84,31 @@ class UrlShortenerControllerImpl(
     val validateUseCase: ValidateUseCase
 ) : UrlShortenerController {
 
+    @Autowired
+    private val qrQueue : BlockingQueue<String>? = null
+
+
+    private val executor = Executors.newFixedThreadPool(2) as ThreadPoolExecutor
+
+
+    @Autowired
+    private val multiThreadDownloader: es.unizar.urlshortener.core.blockingQueue.QrScheduler? = null
+
+    @Async
+    fun startScrapping(url: String) : CompletableFuture<String?> {
+
+        // Añadimos las URLs a la blockingqueue
+        qrQueue?.put(url)
+        // Empezamos a schedulear las URLs
+        val futureReturn: Future<String>? = multiThreadDownloader?.scheduleEachUrlForDownload(createQrUseCase)
+        val resultado = futureReturn?.get()
+        return  CompletableFuture.completedFuture(resultado);
+
+    }
+
+
+
+
     @GetMapping("/tiny-{id:.*}")
     @Timed(description = "Time spent redirecting to the original URL")
     override fun redirectTo(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<Void> =
@@ -118,7 +136,6 @@ class UrlShortenerControllerImpl(
             val h = HttpHeaders()
             val url = linkTo<UrlShortenerControllerImpl> { redirectTo(it.hash, request) }.toUri()
             h.location = url
-
             val validationResponse = validateUseCase.validate(data.url);
 
             if (validationResponse == ValidationResponse.UNSAFE) {
@@ -132,13 +149,18 @@ class UrlShortenerControllerImpl(
             } else {
 
                 if (data.createQr) {
-                    val qrUrl = createQrUseCase.create(it.hash, url.toString())
+
+                    val thread = executor.submit(MyCallable(createQrUseCase, data.url, it.hash))
+
+                    System.out.println(thread.get())
+                    System.out.println("Aaaaaaaaa\n\n\n\n")
+
                     val response = ShortUrlDataOut(
                         url = url,
                         properties = mapOf(
                             "safe" to it.properties.safe
                         ),
-                        qr = qrUrl
+                        qr = thread.get()
                     )
 
                     ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)

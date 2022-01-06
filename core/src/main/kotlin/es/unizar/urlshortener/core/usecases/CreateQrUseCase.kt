@@ -6,10 +6,16 @@ import com.google.zxing.qrcode.QRCodeWriter
 import es.unizar.urlshortener.core.*
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Async
+import org.springframework.stereotype.Component
 import java.io.ByteArrayOutputStream
 import java.net.URI
 import java.util.*
+import java.util.concurrent.BlockingQueue
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.LinkedBlockingQueue
 import javax.swing.Spring.height
 
 
@@ -19,7 +25,7 @@ import javax.swing.Spring.height
  * **Note**: It is a design decision to create this port. It could be part of the core .
  */
 interface CreateQrUseCase {
-    fun create(hash: String, url: String): String
+    fun create(url: String?, hash: String?): CompletableFuture<String>
 
     fun get(hash: String) : String
 }
@@ -27,10 +33,19 @@ interface CreateQrUseCase {
 /**
  * Implementation of the port [CreateQrUseCase].
  */
+@Component
 open class CreateQrUseCaseImpl  (
     private val qrRepositoryService: QrRepositoryService,
-    private val meterRegistry: MeterRegistry
+    private val meterRegistry: MeterRegistry,
+    private val hashService: HashService,
     ) : CreateQrUseCase {
+
+    @Autowired
+    private val qrQueue : BlockingQueue<String>? = null
+
+    companion object {
+        private val Logger = LoggerFactory.getLogger(CreateQrUseCaseImpl::class.java)
+    }
 
     private var qrCounter: Counter = Counter.builder("user.action").
         tag("type", "qrUsed").
@@ -43,7 +58,13 @@ open class CreateQrUseCaseImpl  (
     }
 
     //Return String with ByteArray QR image data Base64 encoded
-    override fun create(hash: String, url: String): String {
+    @Async
+    override fun create(url: String?, hash : String?): CompletableFuture<String> {
+
+        //val hash = hashService.hasUrl(url)
+        Logger.info("MSG")
+        Logger.info(url)
+        Logger.info("lmaoooo\n--------\n")
 
         val qrCodeWriter = QRCodeWriter()
         val bitMatrix = qrCodeWriter.encode(url, BarcodeFormat.QR_CODE, 100, 100)
@@ -54,14 +75,16 @@ open class CreateQrUseCaseImpl  (
         val imageByteArray = pngOutputStream.toByteArray()
         val imageString = Base64.getEncoder().encodeToString(imageByteArray)
 
+
         val qrImage = QrImage(
-            hash = hash,
+            hash = hash.toString(),
             image = imageString
         )
 
         qrRepositoryService.save(qrImage)
 
-        return "http://localhost/qr/$hash"
+
+        return CompletableFuture.completedFuture("http://localhost/qr/$hash")
     }
 
     override fun get(hash: String): String {
@@ -70,4 +93,5 @@ open class CreateQrUseCaseImpl  (
         updateQrCounter()
         return qrImage?.image ?: ""
     }
+
 }
