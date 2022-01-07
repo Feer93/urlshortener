@@ -121,7 +121,7 @@ class MetricsTest {
         assertEquals(HttpStatus.OK, response3.statusCode)
         */
 
-
+/*
         //Comprobar que funciona el endpoint de métricas
         var response4 = restTemplate.getForEntity("http://localhost:$port/metrics/", String::class.java)
         assertEquals(HttpStatus.OK, response4.statusCode)
@@ -233,7 +233,7 @@ class MetricsTest {
         assertEquals("[{\"statistic\":\"COUNT\",\"value\":1.0}]", actualObj["measurements"].toString())
         */
 
-
+*/
 
     }
 
