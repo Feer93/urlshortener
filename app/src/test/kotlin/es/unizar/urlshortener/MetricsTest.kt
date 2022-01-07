@@ -124,7 +124,7 @@ class MetricsTest {
 
         //Comprobar que funciona el endpoint de métricas
         var response4 = restTemplate.getForEntity("http://localhost:$port/metrics/", String::class.java)
-        assertEquals(HttpStatus.OK, response4.statusCode)
+        assertEquals(404, response4.statusCode.value())
         //assertEquals("", response4.body)
 /*
         //Check it has registered a shortened URL
