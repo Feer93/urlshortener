@@ -71,7 +71,7 @@ import org.junit.jupiter.api.Disabled
  *
  */
 
-//@Disabled
+@Disabled
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class MetricsTest {
 
@@ -124,9 +124,9 @@ class MetricsTest {
 
         //Comprobar que funciona el endpoint de métricas
         var response4 = restTemplate.getForEntity("http://localhost:$port/metrics/", String::class.java)
-        assertEquals(404, response4.statusCode.value())
+        assertEquals(HttpStatus.OK, response4.statusCode)
         //assertEquals("", response4.body)
-/*
+
         //Check it has registered a shortened URL
         response4 = restTemplate.getForEntity(
             "http://localhost:$port/metrics/user.action?tag=type:createShortenedURL",
@@ -233,7 +233,6 @@ class MetricsTest {
         assertEquals("[{\"statistic\":\"COUNT\",\"value\":1.0}]", actualObj["measurements"].toString())
         */
 
-*/
 
     }
 
