@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.links.Link
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
+import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.hateoas.server.mvc.linkTo
@@ -135,11 +136,12 @@ class UrlShortenerControllerImpl(
             io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "307",
                     description = "URL not safe or not reachable",
-                    links = [ Link(ref= "http://localhost:8080/errorp")]
+                    content = [Content(mediaType = "html-page",
+                            examples = [ExampleObject(summary = "Redirects the user to an error page",name = "URL isnt safe or reachable", externalValue =  "http://localhost:8080/errorp")])],
+
             )
 
     )
-
     @GetMapping("/tiny-{id:.*}")
     @Timed(description = "Time spent redirecting to the original URL")
     override fun redirectTo(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<ErrorDataOut> =
@@ -172,6 +174,29 @@ class UrlShortenerControllerImpl(
             }
         }
 
+    @Operation(summary = "Shorts an URL and creates a QR if specified")
+    @io.swagger.v3.oas.annotations.responses.ApiResponses(
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "202",
+                    description = "Short URL returned. QR returned if specified",
+                    content = [Content(mediaType = "application/json",
+                            schema = Schema(implementation = ShortUrlDataOut::class ))]
+
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400",
+                    description = "URL could not be processed",
+                    content = [Content(mediaType = "application/json"
+                            )]
+
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server Error",
+                    content = [Content()]
+            )
+
+    )
     @PostMapping("/api/link", consumes = [ MediaType.APPLICATION_FORM_URLENCODED_VALUE ])
     @Timed(description = "Time spent creating the shortened URL")
     override fun shortener(data: ShortUrlDataIn, request: HttpServletRequest): ResponseEntity<ShortUrlDataOut> =

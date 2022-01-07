@@ -19,6 +19,3 @@ management:
         include: "health,info,metrics,prometheus"
 
       base-path: "/"
-
-
-
