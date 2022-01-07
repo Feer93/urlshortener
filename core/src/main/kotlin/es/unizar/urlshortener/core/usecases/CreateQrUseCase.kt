@@ -91,7 +91,9 @@ open class CreateQrUseCaseImpl  (
     override fun get(hash: String): String? {
 
         val qrImage = qrRepositoryService.findByKey(hash)
-        updateQrCounter()
+        if(qrImage != null){
+            updateQrCounter()
+        }
         return qrImage?.image
     }
 

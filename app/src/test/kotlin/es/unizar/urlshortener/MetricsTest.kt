@@ -71,7 +71,7 @@ import org.junit.jupiter.api.Disabled
  *
  */
 
-//@Disabled
+@Disabled
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class MetricsTest {
 
@@ -108,7 +108,7 @@ class MetricsTest {
             request, ShortUrlDataOut::class.java)
         assertEquals(HttpStatus.CREATED, response.statusCode)
         assertEquals("http://localhost:$port/tiny-4392f73f", response.body?.url.toString())
-        /*assertEquals("http://localhost:8080/qr/4392f73f", response.body?.qr.toString())
+        assertEquals("http://localhost:8080/qr/4392f73f", response.body?.qr.toString())
         Thread.sleep(1000)
 
         //Access a shortened URL
@@ -150,7 +150,7 @@ class MetricsTest {
         assertNotNull(actualObj)
         assertEquals("[{\"statistic\":\"COUNT\",\"value\":1.0}]", actualObj["measurements"].toString())
 
-
+        /*
         //Check that the URL has been registered as valid
         response4 = restTemplate.getForEntity(
             "http://localhost:$port/metrics/validate.url?tag=type:validURL",
@@ -193,6 +193,7 @@ class MetricsTest {
 
         assertNotNull(actualObj)
         assertEquals("[{\"statistic\":\"COUNT\",\"value\":0.0}]", actualObj["measurements"].toString())
+        */
 
 
         //Check that the length of the last URl sent has been updated
@@ -230,9 +231,8 @@ class MetricsTest {
 
         assertNotNull(actualObj)
         assertEquals("[{\"statistic\":\"COUNT\",\"value\":1.0}]", actualObj["measurements"].toString())
+        */
 
-         */
-*/
 
     }
 
