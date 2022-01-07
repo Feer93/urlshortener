@@ -16,6 +16,7 @@ import org.springframework.http.HttpEntity
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 import com.fasterxml.jackson.databind.ObjectMapper
+import es.unizar.urlshortener.infrastructure.delivery.QrDataOut
 import org.junit.jupiter.api.Disabled
 
 
@@ -70,7 +71,7 @@ import org.junit.jupiter.api.Disabled
  *
  */
 
-@Disabled
+//@Disabled
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class MetricsTest {
 
