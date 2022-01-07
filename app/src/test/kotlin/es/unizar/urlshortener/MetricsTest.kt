@@ -71,7 +71,7 @@ import org.junit.jupiter.api.Disabled
  *
  */
 
-@Disabled
+//@Disabled
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class MetricsTest {
 
