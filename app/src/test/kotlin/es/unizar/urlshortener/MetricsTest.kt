@@ -109,8 +109,9 @@ class MetricsTest {
         assertEquals(HttpStatus.CREATED, response.statusCode)
         assertEquals("http://localhost:$port/tiny-4392f73f", response.body?.url.toString())
         assertEquals("http://localhost:8080/qr/4392f73f", response.body?.qr.toString())
-        Thread.sleep(1000)
 
+        Thread.sleep(1000)
+/*
         //Access a shortened URL
         val response2 = restTemplate.getForEntity(response.body?.url.toString(), ErrorDataOut::class.java)
         assertEquals(HttpStatus.TEMPORARY_REDIRECT, response2.statusCode)
@@ -233,7 +234,7 @@ class MetricsTest {
         assertEquals("[{\"statistic\":\"COUNT\",\"value\":1.0}]", actualObj["measurements"].toString())
         */
 
-
+*/
     }
 
 
