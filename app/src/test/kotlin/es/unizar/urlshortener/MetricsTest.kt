@@ -115,7 +115,7 @@ class MetricsTest {
         //Access a shortened URL
         val response2 = restTemplate.getForEntity(response.body?.url.toString(), ErrorDataOut::class.java)
         assertEquals(HttpStatus.TEMPORARY_REDIRECT, response2.statusCode)
-/*
+
         /*
         //Access a qr created
         var response3 = restTemplate.getForEntity(response.body?.qr.toString(), QrDataOut::class.java)
@@ -123,11 +123,13 @@ class MetricsTest {
         */
 
 
+        Thread.sleep(1000)
+
         //Comprobar que funciona el endpoint de métricas
         var response4 = restTemplate.getForEntity("http://localhost:$port/metrics/", String::class.java)
         assertEquals(HttpStatus.OK, response4.statusCode)
         //assertEquals("", response4.body)
-
+/*
         //Check it has registered a shortened URL
         response4 = restTemplate.getForEntity(
             "http://localhost:$port/metrics/user.action?tag=type:createShortenedURL",
