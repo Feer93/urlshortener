@@ -154,7 +154,7 @@ class MetricsTest {
         var actualObj: JsonNode = mapper.readTree(response4.body)
 
         assertNotNull(actualObj)
-        assertEquals("[{\"statistic\":\"COUNT\",\"value\":1.0}]", actualObj["measurements"].toString())
+        assertEquals("[{\"statistic\":\"COUNT\",\"value\":"+(auxNumber+1.0)+"}]", actualObj["measurements"].toString())
 
         //Check it has registered two total accesses to a URL (one for the qr and the other for the redirection)
         response4 = restTemplate.getForEntity(
@@ -165,7 +165,7 @@ class MetricsTest {
         actualObj= mapper.readTree(response4.body)
 
         assertNotNull(actualObj)
-        assertEquals("[{\"statistic\":\"COUNT\",\"value\":"+(auxNumber+1.0)+"}]", actualObj["measurements"].toString())
+        assertEquals("[{\"statistic\":\"COUNT\",\"value\":1.0}]", actualObj["measurements"].toString())
 
         /*
         //Check that the URL has been registered as valid
