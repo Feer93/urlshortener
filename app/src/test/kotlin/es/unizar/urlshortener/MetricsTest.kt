@@ -110,7 +110,7 @@ class MetricsTest {
         assertEquals("http://localhost:$port/tiny-4392f73f", response.body?.url.toString())
         assertEquals("http://localhost:8080/qr/4392f73f", response.body?.qr.toString())
 
-        Thread.sleep(1000)
+        Thread.sleep(2000)
 
         //Access a shortened URL
         val response2 = restTemplate.getForEntity(response.body?.url.toString(), ErrorDataOut::class.java)
@@ -123,13 +123,13 @@ class MetricsTest {
         */
 
 
-        Thread.sleep(1000)
+        Thread.sleep(2000)
 
         //Comprobar que funciona el endpoint de métricas
         var response4 = restTemplate.getForEntity("http://localhost:$port/metrics/", String::class.java)
         assertEquals(HttpStatus.OK, response4.statusCode)
         //assertEquals("", response4.body)
-/*
+
         //Check it has registered a shortened URL
         response4 = restTemplate.getForEntity(
             "http://localhost:$port/metrics/user.action?tag=type:createShortenedURL",
@@ -236,7 +236,7 @@ class MetricsTest {
         assertEquals("[{\"statistic\":\"COUNT\",\"value\":1.0}]", actualObj["measurements"].toString())
         */
 
-*/
+
     }
 
 
