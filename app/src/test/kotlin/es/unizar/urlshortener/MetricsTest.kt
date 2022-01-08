@@ -102,6 +102,18 @@ class MetricsTest {
         map.add("url", "http://www.unizar.es")
         map.add("createQr", "true")
 
+        //Check it has registered a shortened URL
+        var responsex = restTemplate.getForEntity(
+            "http://localhost:$port/metrics/user.action?tag=type:createShortenedURL",
+            String::class.java)
+        assertEquals(HttpStatus.OK, responsex.statusCode)
+
+        val mapperx = ObjectMapper()
+        var actualObjx: JsonNode = mapperx.readTree(responsex.body)
+
+        assertNotNull(actualObjx)
+        assertEquals("[{\"statistic\":\"COUNT\",\"value\":0.0}]", actualObjx["measurements"].toString())
+
         //Shorten a URL
         val request: HttpEntity<MultiValueMap<String, String>> = HttpEntity(map, headers)
         val response = restTemplate.postForEntity("http://localhost:$port/api/link",
@@ -121,7 +133,6 @@ class MetricsTest {
         var response3 = restTemplate.getForEntity(response.body?.qr.toString(), QrDataOut::class.java)
         assertEquals(HttpStatus.OK, response3.statusCode)
         */
-
 
         Thread.sleep(2000)
 
