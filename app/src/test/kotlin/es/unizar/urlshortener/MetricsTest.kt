@@ -111,11 +111,11 @@ class MetricsTest {
         assertEquals("http://localhost:8080/qr/4392f73f", response.body?.qr.toString())
 
         Thread.sleep(1000)
-/*
+
         //Access a shortened URL
         val response2 = restTemplate.getForEntity(response.body?.url.toString(), ErrorDataOut::class.java)
         assertEquals(HttpStatus.TEMPORARY_REDIRECT, response2.statusCode)
-
+/*
         /*
         //Access a qr created
         var response3 = restTemplate.getForEntity(response.body?.qr.toString(), QrDataOut::class.java)
