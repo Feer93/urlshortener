@@ -112,7 +112,7 @@ class MetricsTest {
         var actualObjx: JsonNode = mapperx.readTree(responsex.body)
 
         assertNotNull(actualObjx)
-        assertEquals("[{\"statistic\":\"COUNT\",\"value\":0.0}]", actualObjx["measurements"].toString())
+        assertEquals("[{\"statistic\":\"COUNT\",\"value\":1.0}]", actualObjx["measurements"].toString())
 
         //Shorten a URL
         val request: HttpEntity<MultiValueMap<String, String>> = HttpEntity(map, headers)
@@ -151,7 +151,7 @@ class MetricsTest {
         var actualObj: JsonNode = mapper.readTree(response4.body)
 
         assertNotNull(actualObj)
-        assertEquals("[{\"statistic\":\"COUNT\",\"value\":1.0}]", actualObj["measurements"].toString())
+        assertEquals("[{\"statistic\":\"COUNT\",\"value\":2.0}]", actualObj["measurements"].toString())
 
         //Check it has registered two total accesses to a URL (one for the qr and the other for the redirection)
         response4 = restTemplate.getForEntity(
