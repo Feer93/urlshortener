@@ -3,6 +3,7 @@ package es.unizar.urlshortener
 import com.google.common.collect.Sets
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.web.servlet.config.annotation.EnableWebMvc
 import springfox.documentation.builders.ApiInfoBuilder
 import springfox.documentation.builders.PathSelectors
 import springfox.documentation.builders.RequestHandlerSelectors
@@ -28,14 +29,12 @@ class SwaggerConf {
     @Bean
     fun api(): Docket {
         return Docket(DocumentationType.SWAGGER_2)
-                .useDefaultResponseMessages(false)
-                .protocols(Sets.newHashSet("http", "https"))
-                .apiInfo(getInfo())
                 .select()
                 .apis(RequestHandlerSelectors.any())
                 .paths(PathSelectors.any())
                 .build()
                 .apiInfo(getInfo())
+                .useDefaultResponseMessages(false)
     }
 
     private fun getInfo(): ApiInfo {
