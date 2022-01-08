@@ -3,6 +3,7 @@ package es.unizar.urlshortener.infrastructure.delivery
 import es.unizar.urlshortener.core.usecases.*
 import io.micrometer.core.instrument.MeterRegistry
 import org.json.JSONArray
+import org.json.JSONObject
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Disabled
 import org.mockito.BDDMockito.given
@@ -13,6 +14,8 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import org.springframework.util.LinkedMultiValueMap
+import org.springframework.util.MultiValueMap
 
 @WebMvcTest
 @ContextConfiguration(classes = [
@@ -29,7 +32,7 @@ class StatsControllerTest {
     @MockBean
     private lateinit var meterRegistry: MeterRegistry
 
-    @Disabled
+    //@Disabled
     @Test
     fun `general stats returned correctly`() {
         val description = "stats"
@@ -45,13 +48,14 @@ class StatsControllerTest {
         given(recoverInfoUseCase.recoverTopKRedirection()).willReturn(top100clickedShortenedURL)
         given(recoverInfoUseCase.recoverTopKShortenedURL()).willReturn(top100hostsWithShortenedURL)
 
+
         mockMvc.perform(get("/{hash}.json", description))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.description").value(description))
             .andExpect(jsonPath("$.totalShortenedURL").value(totalShortenedURL))
             .andExpect(jsonPath("$.totalClicks").value(totalClicks))
-            .andExpect(jsonPath("$.top100hostsWithShortenedURL").value(top100hostsWithShortenedURL))
-            .andExpect(jsonPath("$.top100hostsWithShortenedURL").value(top100hostsWithShortenedURL))
+            .andExpect(jsonPath("$.top100clickedShortenedURL").isArray)
+            .andExpect(jsonPath("$.top100hostsWithShortenedURL").isArray)
 
     }
 
