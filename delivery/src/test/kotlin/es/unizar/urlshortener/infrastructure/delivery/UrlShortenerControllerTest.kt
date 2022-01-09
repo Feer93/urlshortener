@@ -57,11 +57,12 @@ class UrlShortenerControllerTest {
     @MockBean
     private lateinit var createQrUseCase: CreateQrUseCase
 
-    @Disabled
     @Test
     fun `redirectTo returns a redirect when the key exists`() {
         given(redirectUseCase.redirectTo("key")).willReturn(Redirection("http://example.com/"))
-
+        given(validateUseCase.isValidated("key")).willReturn(true)
+        given(validateUseCase.isSafeAndReachable("key")).willReturn(true)
+        
         mockMvc.perform(get("/tiny-{id}", "key"))
             .andExpect(status().isTemporaryRedirect)
             .andExpect(redirectedUrl("http://example.com/"))
