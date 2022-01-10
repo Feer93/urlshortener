@@ -22,8 +22,8 @@ class QueueConfig {
     @Bean("validationExecutor")
     fun validationExecutor(): Executor {
         val executor = ThreadPoolTaskExecutor()
-        executor.corePoolSize = 20
-        executor.maxPoolSize = 20
+        executor.corePoolSize = 50
+        executor.maxPoolSize = 50
         executor.setQueueCapacity(1000)
         executor.setRejectedExecutionHandler(ThreadPoolExecutor.DiscardOldestPolicy ())
         executor.setThreadNamePrefix("ValidatorExec-")

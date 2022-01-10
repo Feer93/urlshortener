@@ -21,7 +21,7 @@ class ValidationScheduler(
     private val validationQueue: BlockingQueue<String>? = null
 
     @Async("validationExecutor")
-    @Scheduled(fixedDelay = 500L)
+    @Scheduled(fixedDelay = 250L)
     fun execute() {
         try {
             LOGGER.info("Waiting for validation: ")

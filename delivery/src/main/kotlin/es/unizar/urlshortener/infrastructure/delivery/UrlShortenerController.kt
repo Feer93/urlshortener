@@ -64,9 +64,9 @@ interface UrlShortenerController {
  */
 @Schema(name="ShortURLDataIn",description = "Data required to create a short URL.")
 data class ShortUrlDataIn(
-    @get:[Schema(name = "url", format = "String", required = true, example = "http//www.some-url.com")]
+    @get:[Schema(name = "url",description="URL introduced by the user", format = "String", required = true, example = "http//www.some-url.com")]
     val url: String,
-    @get:[Schema(name = "createQr", format = "Boolean", allowableValues = ["True", "False"],required = false)]
+    @get:[Schema(name = "createQr",description = "Parameter to ask for a QR image for the URL" ,format = "Boolean", allowableValues = ["True", "False"],required = false)]
     val createQr: Boolean = false,
     @get:[Schema(name = "sponsor", format = "String",required = false)]
     val sponsor: String? = null
@@ -75,8 +75,11 @@ data class ShortUrlDataIn(
 /**
  * Data returned after the creation of a short url.
  */
+@Schema(name="ShortURLDataOut",description = "Data returned after the creation of a short url.")
 data class ShortUrlDataOut(
+    @get:[Schema(name = "url", format = "URI", example = "http://localhost/tiny-f684a3c4",description = "Shortened URL redirection")]
     val url: URI? = null,
+    @get:[Schema(name = "qr", format = "String", description = "URL to QR image code")]
     val qr: String? = null,
     val properties: Map<String, Any> = emptyMap()
 )
@@ -233,7 +236,22 @@ class UrlShortenerControllerImpl(
                 ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.ACCEPTED)
             }
         }
-        
+    @Operation(summary = "Redirects to a QR image for the specified hash if exists.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponses(
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "The hash exists returns a link to the QR Image",
+                    content = [Content(schema = Schema(implementation = ShortUrlDataOut::class ))]
+
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400",
+                    description = "QR image doesn't exists as the hash hasnt been asked previously",
+                    content = [Content( schema = Schema(implementation = ShortUrlDataOut::class )
+                    )]
+
+            )
+    )
     @GetMapping("/qr/{hash}")
     @Timed(description = "Time spent returning the QR image")
     override fun getQr(@PathVariable hash: String, request: HttpServletRequest): ResponseEntity<QrDataOut> {
