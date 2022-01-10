@@ -88,6 +88,7 @@ class UrlShortenerControllerTest {
         val expectedJson = "{\"error\" : \"URL de destino no validada todavia\"}";
 
         given(redirectUseCase.redirectTo("key")).willReturn(Redirection("http://example.com/"))
+        given(validateUseCase.isValidated("key")).willReturn(false)
 
         mockMvc.perform(get("/tiny-{id}", "key"))
                 .andDo(print())
