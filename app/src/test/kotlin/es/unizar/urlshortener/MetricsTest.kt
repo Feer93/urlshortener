@@ -121,7 +121,7 @@ class MetricsTest {
         val request: HttpEntity<MultiValueMap<String, String>> = HttpEntity(map, headers)
         val response = restTemplate.postForEntity("http://localhost:$port/api/link",
             request, ShortUrlDataOut::class.java)
-        assertEquals(HttpStatus.CREATED, response.statusCode)
+        assertEquals(HttpStatus.ACCEPTED, response.statusCode)
         assertEquals("http://localhost:$port/tiny-4392f73f", response.body?.url.toString())
         assertEquals("http://localhost:8080/qr/4392f73f", response.body?.qr.toString())
 
