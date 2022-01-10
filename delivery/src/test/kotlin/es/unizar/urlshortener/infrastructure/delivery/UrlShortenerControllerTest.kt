@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Disabled
 import org.mockito.BDDMockito.*
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.willReturn
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -141,4 +142,28 @@ class UrlShortenerControllerTest {
                 .andExpect(status().isBadRequest)
     }
 
+    @Test
+    fun `get qr returns not found if it has not been created before`() {
+        given(createQrUseCase.get("key")).willReturn(null)
+
+        mockMvc.perform(get("/qr/{hash}", "key"))
+            .andDo(print())
+            .andExpect(jsonPath("$.image").isEmpty)
+            .andExpect(jsonPath("$.error").isNotEmpty)
+            .andExpect(status().isNotFound)
+
+
+    }
+
+    @Test
+    fun `get qr returns ok if it exists`() {
+        given(createQrUseCase.get("key")).willReturn("image")
+
+        mockMvc.perform(get("/qr/{hash}", "key"))
+            .andDo(print())
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.image").value("image"))
+            .andExpect(jsonPath("$.error").isEmpty)
+
+    }
 }

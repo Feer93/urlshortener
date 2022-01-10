@@ -222,7 +222,7 @@ class UrlShortenerControllerImpl(
             validationQueue?.put(data.url)
 
             if (data.createQr) {
-                val futureQr = qrExecutor.submit(QrCallable(createQrUseCase, data.url, it.hash))
+                val futureQr = qrExecutor.submit(QrCallable(createQrUseCase, data.url, it.hash, url.toString()))
                 val response = ShortUrlDataOut(
                     url = url,
                     qr = futureQr.get()
@@ -258,6 +258,7 @@ class UrlShortenerControllerImpl(
         val h = HttpHeaders()
 
         val qrImage = createQrUseCase.get(hash)
+
 
         if (qrImage != null) {
             val response = QrDataOut(

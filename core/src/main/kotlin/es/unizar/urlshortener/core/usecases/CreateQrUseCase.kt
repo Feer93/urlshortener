@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import java.io.ByteArrayOutputStream
 import java.net.URI
 import java.util.*
@@ -26,7 +27,7 @@ import javax.swing.Spring.height
  * **Note**: It is a design decision to create this port. It could be part of the core .
  */
 interface CreateQrUseCase {
-    fun create(url: String?, hash: String?): CompletableFuture<String>
+    fun create(url: String?, hash: String?, qrUrl : String?): CompletableFuture<String>
 
     fun get(hash: String) : String?
 }
@@ -41,7 +42,6 @@ open class CreateQrUseCaseImpl  (
     ) : CreateQrUseCase {
 
 
-    private val hostName = "http://localhost:8080/"
 
     /**
      * Counter to count the number of times a qr is used
@@ -60,7 +60,7 @@ open class CreateQrUseCaseImpl  (
 
     //Return String with ByteArray QR image data Base64 encoded
     @Async
-    override fun create(url: String?, hash : String?): CompletableFuture<String> {
+    override fun create(url: String?, hash : String?, qrUrl : String?): CompletableFuture<String> {
 
         val imageString = get(hash.toString())
 
@@ -75,7 +75,6 @@ open class CreateQrUseCaseImpl  (
             val imageByteArray = pngOutputStream.toByteArray()
             val imageString = Base64.getEncoder().encodeToString(imageByteArray)
 
-
             val qrImage = QrImage(
                 hash = hash.toString(),
                 image = imageString
@@ -85,7 +84,8 @@ open class CreateQrUseCaseImpl  (
 
         }
 
-        return CompletableFuture.completedFuture("$hostName" + "qr/" + "$hash")
+
+        return CompletableFuture.completedFuture(qrUrl)
     }
 
     override fun get(hash: String): String? {
