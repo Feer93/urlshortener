@@ -7,8 +7,7 @@ import io.micrometer.core.instrument.MeterRegistry
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Disabled
-import org.mockito.BDDMockito.given
-import org.mockito.BDDMockito.never
+import org.mockito.BDDMockito.*
 import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -71,6 +70,35 @@ class UrlShortenerControllerTest {
     }
 
     @Test
+    fun `redirectTo returns a redirect to an error page when the key exists but it isnt safe or reachable`() {
+
+        given(validateUseCase.isValidated("key")).willReturn(true)
+        given(validateUseCase.isSafeAndReachable("key")).willReturn(false)
+
+        mockMvc.perform(get("/tiny-{id}", "key"))
+                .andExpect(status().is3xxRedirection)
+                .andExpect(redirectedUrl("http://localhost/errorp"))
+
+        verify(logClickUseCase).logClick("key", ClickProperties(ip = "127.0.0.1"))
+    }
+
+    @Test
+    fun `redirectTo returns an error code 400 and a JSON message when the URL hasnt been validated yet`() {
+
+        val expectedJson = "{\"error\" : \"URL de destino no validada todavia\"}";
+
+        given(redirectUseCase.redirectTo("key")).willReturn(Redirection("http://example.com/"))
+
+        mockMvc.perform(get("/tiny-{id}", "key"))
+                .andDo(print())
+                .andExpect(status().isBadRequest)
+                .andExpect(content().json(expectedJson))
+
+        verify(logClickUseCase).logClick("key", ClickProperties(ip = "127.0.0.1"))
+    }
+
+
+    @Test
     fun `redirectTo returns a not found when the key does not exist`() {
         given(redirectUseCase.redirectTo("key"))
             .willAnswer { throw RedirectionNotFound("key") }
@@ -96,6 +124,7 @@ class UrlShortenerControllerTest {
             .andDo(print())
             .andExpect(redirectedUrl("http://localhost/tiny-f684a3c4"))
             .andExpect(jsonPath("$.url").value("http://localhost/tiny-f684a3c4"))
+            .andExpect(status().isAccepted)
     }
 
     @Test

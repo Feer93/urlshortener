@@ -178,7 +178,7 @@ class UrlShortenerControllerImpl(
     @io.swagger.v3.oas.annotations.responses.ApiResponses(
             io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "202",
-                    description = "Short URL returned. QR returned if specified",
+                    description = "Short URL returned and accepted for processing. QR returned if specified",
                     content = [Content(mediaType = "application/json",
                             schema = Schema(implementation = ShortUrlDataOut::class ))]
 
@@ -223,12 +223,12 @@ class UrlShortenerControllerImpl(
                     qr = futureQr.get()
                 )
 
-                ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
+                ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.ACCEPTED)
             } else {
                 val response = ShortUrlDataOut(
                     url = url
                 )
-                ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.CREATED)
+                ResponseEntity<ShortUrlDataOut>(response, h, HttpStatus.ACCEPTED)
             }
         }
         
