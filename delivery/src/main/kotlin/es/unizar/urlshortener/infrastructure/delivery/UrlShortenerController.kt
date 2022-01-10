@@ -9,9 +9,7 @@ import es.unizar.urlshortener.core.*
 import es.unizar.urlshortener.core.validationQueue.ValidationScheduler
 import es.unizar.urlshortener.core.usecases.*
 import io.netty.handler.codec.http.HttpHeaders.newEntity
-import io.swagger.annotations.ApiParam
-import io.swagger.annotations.ApiResponse
-import io.swagger.annotations.ApiResponses
+import io.swagger.annotations.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.links.Link
@@ -64,9 +62,13 @@ interface UrlShortenerController {
 /**
  * Data required to create a short url.
  */
+@Schema(name="ShortURLDataIn",description = "Data required to create a short URL.")
 data class ShortUrlDataIn(
+    @get:[Schema(name = "url", format = "String", required = true, example = "http//www.some-url.com")]
     val url: String,
+    @get:[Schema(name = "createQr", format = "Boolean", allowableValues = ["True", "False"],required = false)]
     val createQr: Boolean = false,
+    @get:[Schema(name = "sponsor", format = "String",required = false)]
     val sponsor: String? = null
 )
 
