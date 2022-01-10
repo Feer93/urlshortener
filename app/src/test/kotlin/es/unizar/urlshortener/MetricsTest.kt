@@ -123,7 +123,7 @@ class MetricsTest {
             request, ShortUrlDataOut::class.java)
         assertEquals(HttpStatus.ACCEPTED, response.statusCode)
         assertEquals("http://localhost:$port/tiny-4392f73f", response.body?.url.toString())
-        assertEquals("http://localhost:8080/qr/4392f73f", response.body?.qr.toString())
+        assertEquals("http://localhost:$port/qr/4392f73f", response.body?.qr.toString())
 
         Thread.sleep(2000)
 
