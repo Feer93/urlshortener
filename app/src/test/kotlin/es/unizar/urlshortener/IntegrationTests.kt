@@ -80,7 +80,7 @@ class HttpRequestTest {
     fun `creates returns a basic redirect if it can compute a hash`() {
         val response = shortUrl("http://example.com/")
 
-        assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
+        assertThat(response.statusCode).isEqualTo(HttpStatus.ACCEPTED)
         assertThat(response.headers.location).isEqualTo(URI.create("http://localhost:$port/tiny-f684a3c4"))
         assertThat(response.body?.url).isEqualTo(URI.create("http://localhost:$port/tiny-f684a3c4"))
 
