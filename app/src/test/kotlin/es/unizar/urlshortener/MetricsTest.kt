@@ -116,19 +116,6 @@ class MetricsTest {
 
         val auxNumber = (actualObjx["measurements"].toString().replace("[^0-9/.]".toRegex(), "")).toFloat()
 
-
-        //Get the number of valid URL at this moment
-        responsex = restTemplate.getForEntity(
-            "http://localhost:$port/metrics/user.action?tag=type:createShortenedURL",
-            String::class.java)
-        assertEquals(HttpStatus.OK, responsex.statusCode)
-
-        mapperx = ObjectMapper()
-        actualObjx = mapperx.readTree(responsex.body)
-        val auxNumberValid = 0.0f//(actualObjx["measurements"].toString().replace("[^0-9/.]".toRegex(), "")).toFloat()
-        //assertEquals(auxNumberValid, 0.0f)
-
-
         //Shorten a URL
         val request: HttpEntity<MultiValueMap<String, String>> = HttpEntity(map, headers)
         val response = restTemplate.postForEntity("http://localhost:$port/api/link",
@@ -190,7 +177,7 @@ class MetricsTest {
         actualObj= mapper.readTree(response4.body)
 
         assertNotNull(actualObj)
-        assertEquals("[{\"statistic\":\"COUNT\",\"value\":"+(auxNumberValid+1.0)+"}]",
+        assertEquals("[{\"statistic\":\"COUNT\",\"value\":1.0}]",
             actualObj["measurements"].toString())
 
         response4 = restTemplate.getForEntity(
