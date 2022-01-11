@@ -50,6 +50,8 @@ project(":core") {
         //Testing
         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
         "testImplementation"("org.mockito.kotlin:mockito-kotlin:3.2.0")
+        "testImplementation" ("org.mockito:mockito-core:2.8.9")
+
     }
     tasks.getByName<BootJar>("bootJar") {
         enabled = false

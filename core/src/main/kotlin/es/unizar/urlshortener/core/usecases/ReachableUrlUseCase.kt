@@ -36,7 +36,7 @@ class ReachableUrlUseCaseImpl(private val meterRegistry: MeterRegistry) : Reacha
     override fun isReachable(url: String) : Boolean {
 
         val url = URL(url)
-        val connection: HttpsURLConnection = url.openConnection() as HttpsURLConnection
+        val connection: HttpURLConnection = url.openConnection() as HttpURLConnection
         connection.connectTimeout = 3 * 1000
         return try {
             connection.connect()

@@ -1,23 +1,22 @@
 package es.unizar.urlshortener.core.usecases
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import es.unizar.urlshortener.core.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
-import org.springframework.test.context.ContextConfiguration
-import org.springframework.web.client.RestTemplate
 import java.io.IOException
-import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
-import java.net.URI
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
-
+/**
+ * @Description
+ * Tests Unitarios para para la clase ReachableUseCase y para la clase
+ * ValidateUseCase.
+ * En concreto, se testean los métodos isSafe e isReachable,
+ * los cuales son utilizados para verificar que una URL es alcanzable y segura.
+ */
 internal class ReachableUrlUseCaseImplTest {
 
     object ObjBeingMocked {
@@ -40,8 +39,22 @@ internal class ReachableUrlUseCaseImplTest {
     }
 
     @Test
-    fun `URL is reachable`() {
+    fun `URL is reachable using reachable stub via HTTPS`() {
+        val c = Mockito.mock(ReachableUrlUseCaseImpl::class.java)
+        c.isReachable(url = "https://www.google.com/")
         assertTrue(ObjBeingMocked.isReachable("https://www.google.com/"))
+    }
+
+    @Test
+    fun `URL is reachable mocking ReachableURLUseCase`(){
+        val mockedReachableClass = Mockito.mock(ReachableUrlUseCaseImpl::class.java)
+        mockedReachableClass.isReachable(url = "https://www.google.com/")
+    }
+
+    @Test
+    fun `URL is safe mocking ValidateUseCase`(){
+        val mockedValidateSafetyClass = Mockito.mock(ValidateUseCase::class.java)
+        mockedValidateSafetyClass.isSafe(url = "https://www.google.com/")
     }
 
 
