@@ -59,4 +59,62 @@ class StatsControllerTest {
 
     }
 
+    @Test
+    fun `total shortened url stat returned correctly`() {
+        val totalShortenedURL = 1L
+        val id = "1"
+
+        given(recoverInfoUseCase.countURL()).willReturn(totalShortenedURL)
+
+        mockMvc.perform(get("/stat-{id}", id))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.statCount").value(totalShortenedURL))
+            .andExpect(jsonPath("$.statID").value(id.toLong()))
+
+    }
+
+    @Test
+    fun `total clicks stat returned correctly`() {
+        val totalClicks = 1L
+        val id = "2"
+
+        given(recoverInfoUseCase.countRedirection()).willReturn(totalClicks)
+
+        mockMvc.perform(get("/stat-{id}", id))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.statCount").value(totalClicks))
+            .andExpect(jsonPath("$.statID").value(id.toLong()))
+
+    }
+
+    @Test
+    fun `top 100 clicked shortened url stat returned correctly`() {
+        val top100clickedShortenedURL: MutableList<Pair<String, Long>> =
+            mutableListOf(Pair("f684a3c4", 2), Pair("dfgh25as", 1))
+        val id = "3"
+
+        given(recoverInfoUseCase.recoverTopKRedirection()).willReturn(top100clickedShortenedURL)
+
+        mockMvc.perform(get("/stat-{id}", id))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.statList").isArray)
+            .andExpect(jsonPath("$.statID").value(id.toLong()))
+
+    }
+
+    fun `top 100 hosts with shortened url stat returned correctly`() {
+        val top100hostsWithShortenedURL: MutableList<Pair<String, Long>> =
+            mutableListOf(Pair("www.example.com", 2), Pair("www.unizar.es", 2))
+        val id = "4"
+
+        given(recoverInfoUseCase.recoverTopKShortenedURL()).willReturn(top100hostsWithShortenedURL)
+
+        mockMvc.perform(get("/stat-{id}", id))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.statList").isArray)
+            .andExpect(jsonPath("$.statID").value(id.toLong()))
+
+    }
+
+
 }
