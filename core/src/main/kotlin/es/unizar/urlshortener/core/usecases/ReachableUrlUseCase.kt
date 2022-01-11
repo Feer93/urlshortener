@@ -44,6 +44,7 @@ class ReachableUrlUseCaseImpl(private val meterRegistry: MeterRegistry) : Reacha
                 reachableCounter.increment()
                 true
             } else {
+                unreachableCounter.increment()
                 false
             }
         }catch (timeOutException : SocketTimeoutException){

@@ -16,6 +16,7 @@ interface ValidateUseCase {
     fun isSafe(url: String): Boolean
     fun isValidated(hash: String): Boolean
     fun isSafeAndReachable(hash: String): Boolean
+    fun isSafeWithoutCounters(url: String): Boolean
 }
 
 const val API_URL = "https://safebrowsing.googleapis.com/v4/threatMatches:find?key=AIzaSyDiXbmdOrpATVTSu5FqGCb98jMmE6cJ-c8"
@@ -86,6 +87,35 @@ open class ValidateUseCaseImpl(
             return true
         }
         updateInvalid()
+        return false
+    }
+
+    override fun isSafeWithoutCounters(url: String): Boolean {
+        val uri = URI(API_URL)
+
+        //Create request body
+        val body = ThreatMatchesRequest(
+            ThreatInfo(
+                listOf(ThreatType.MALWARE, ThreatType.SOCIAL_ENGINEERING),
+                listOf(PlatformType.ALL_PLATFORMS),
+                listOf(ThreatEntryType.URL),
+                listOf(
+                    ThreatEntry(url, ThreatEntryRequestType.URL)
+                )
+            )
+        )
+
+        // Convert body to json
+        val requestBody = jacksonObjectMapper().writeValueAsString(body)
+        val request = HttpEntity(requestBody)
+
+        //Request to google safe browsing
+        val response = restTemplate.postForObject(uri, request,ThreatMatchesResponse::class.java)
+
+        //If the resposponse is empty, the url is secure
+        if (response?.matches.isNullOrEmpty()) {
+            return true
+        }
         return false
     }
 
