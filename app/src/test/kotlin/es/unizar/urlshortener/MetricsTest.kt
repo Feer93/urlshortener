@@ -108,13 +108,24 @@ class MetricsTest {
             String::class.java)
         assertEquals(HttpStatus.OK, responsex.statusCode)
 
-        val mapperx = ObjectMapper()
+        var mapperx = ObjectMapper()
         var actualObjx: JsonNode = mapperx.readTree(responsex.body)
 
         assertNotNull(actualObjx)
         //assertEquals("[{\"statistic\":\"COUNT\",\"value\":0.0}]", actualObjx["measurements"].toString())
 
         val auxNumber = (actualObjx["measurements"].toString().replace("[^0-9/.]".toRegex(), "")).toFloat()
+
+
+        //Get the number of valid URL at this moment
+        val responsex2 = restTemplate.getForEntity(
+            "http://localhost:$port/metrics/user.action?tag=type:createShortenedURL",
+            String::class.java)
+        assertEquals(HttpStatus.OK, responsex2.statusCode)
+
+        mapperx = ObjectMapper()
+        actualObjx = mapperx.readTree(responsex2.body)
+        val auxNumberValid = (actualObjx["measurements"].toString().replace("[^0-9/.]".toRegex(), "")).toFloat()
 
 
         //Shorten a URL
@@ -131,18 +142,19 @@ class MetricsTest {
         val response2 = restTemplate.getForEntity(response.body?.url.toString(), ErrorDataOut::class.java)
         assertEquals(HttpStatus.TEMPORARY_REDIRECT, response2.statusCode)
 
-        /*
+
         //Access a qr created
-        var response3 = restTemplate.getForEntity(response.body?.qr.toString(), QrDataOut::class.java)
+        var response3 = restTemplate.getForEntity(/*response.body?.url.toString()*/
+                "http://localhost:$port/qr/4392f73f", QrDataOut::class.java)
         assertEquals(HttpStatus.OK, response3.statusCode)
-        */
+
 
         Thread.sleep(2000)
 
         //Comprobar que funciona el endpoint de métricas
         var response4 = restTemplate.getForEntity("http://localhost:$port/metrics/", String::class.java)
         assertEquals(HttpStatus.OK, response4.statusCode)
-        //assertEquals("", response4.body)
+
 
         //Check it has registered a shortened URL
         response4 = restTemplate.getForEntity(
@@ -167,7 +179,7 @@ class MetricsTest {
         assertNotNull(actualObj)
         assertEquals("[{\"statistic\":\"COUNT\",\"value\":1.0}]", actualObj["measurements"].toString())
 
-        /*
+
         //Check that the URL has been registered as valid
         response4 = restTemplate.getForEntity(
             "http://localhost:$port/metrics/validate.url?tag=type:validURL",
@@ -177,7 +189,8 @@ class MetricsTest {
         actualObj= mapper.readTree(response4.body)
 
         assertNotNull(actualObj)
-        assertEquals("[{\"statistic\":\"COUNT\",\"value\":2.0}]", actualObj["measurements"].toString())
+        assertEquals("[{\"statistic\":\"COUNT\",\"value\":"+(auxNumberValid+1.0)+"}]",
+            actualObj["measurements"].toString())
 
         response4 = restTemplate.getForEntity(
             "http://localhost:$port/metrics/validate.url?tag=type:invalidURL",
@@ -210,7 +223,7 @@ class MetricsTest {
 
         assertNotNull(actualObj)
         assertEquals("[{\"statistic\":\"COUNT\",\"value\":0.0}]", actualObj["measurements"].toString())
-        */
+
 
 
         //Check that the length of the last URl sent has been updated
@@ -237,7 +250,7 @@ class MetricsTest {
         assertEquals("[{\"statistic\":\"COUNT\",\"value\":1.0}]", actualObj["measurements"].toString())
 
 
-        /*
+
         //Check it has registered an access for a qr
         response4 = restTemplate.getForEntity(
             "http://localhost:$port/metrics/user.action?tag=type:qrUsed",
@@ -248,7 +261,7 @@ class MetricsTest {
 
         assertNotNull(actualObj)
         assertEquals("[{\"statistic\":\"COUNT\",\"value\":1.0}]", actualObj["measurements"].toString())
-        */
+
 
 
     }
