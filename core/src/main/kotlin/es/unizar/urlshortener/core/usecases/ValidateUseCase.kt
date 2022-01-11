@@ -100,4 +100,5 @@ open class ValidateUseCaseImpl(
         return shortUrl.properties.reachable && shortUrl.properties.safe
     }
 
+
 }
