@@ -121,6 +121,7 @@ class MetricsTest {
         responsex = restTemplate.getForEntity(
             "http://localhost:$port/metrics/validate.url?tag=type:validURL",
             String::class.java)
+        assertEquals(HttpStatus.OK, responsex.statusCode)
 
         assertEquals(HttpStatus.OK, responsex.statusCode)
         actualObjx = mapperx.readTree(responsex.body)
