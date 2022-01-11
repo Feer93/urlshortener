@@ -32,7 +32,10 @@ interface StatsController {
  * Data that the controller returns
  */
 data class StatsOut(
-    val stat: String? = null
+    val statID: Long? = null,
+    val statCount: Long? = null,
+    val statList: MutableList<Pair<String, Long>>? = null,
+    val error: String? = null
 )
 
 /**
@@ -60,16 +63,43 @@ class StatsControllerImpl(
     /**
      * TODO: Handle a specific stats request
      */
-    @GetMapping("/shortURL-{id:.*}")
+    @GetMapping("/stat-{id:[0-9]+}")
     @Timed(description = "Time spent calculating specific stats")
     override fun statsSpecific(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<StatsOut> {
         val h = HttpHeaders()
-        val response = StatsOut(id)
+        val idF = id.toLong()
+
+        val response : StatsOut
+
+        when(idF) {
+            1L -> response = StatsOut(
+                    statID = idF,
+                    statCount = recoverInfoUseCase.countURL()
+                )
+            2L -> response = StatsOut(
+                    statID = idF,
+                    statCount = recoverInfoUseCase.countRedirection()
+                )
+            3L -> response = StatsOut(
+                    statID = idF,
+                    statList = recoverInfoUseCase.recoverTopKRedirection()
+                )
+            4L -> response = StatsOut(
+                    statID = idF,
+                    statList = recoverInfoUseCase.recoverTopKShortenedURL()
+                )
+            else -> {
+                response = StatsOut(
+                    error = "Error: $idF invalid stat id"
+                )
+            }
+        }
+
         return ResponseEntity<StatsOut>(response, h, HttpStatus.OK)
     }
 
 
-    @GetMapping("/{hash:.*}.json")
+    @GetMapping("/{hash:.+}.json")
     @Timed(description = "Time spent calculating general stats")
     override fun statsGeneral(@PathVariable hash: String, request: HttpServletRequest): ResponseEntity<GeneralStatsOut> {
         val h = HttpHeaders()
