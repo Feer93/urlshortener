@@ -8,6 +8,7 @@ import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
 import java.net.URL
 import java.net.UnknownHostException
+import javax.net.ssl.HttpsURLConnection
 
 
 interface ReachableUrlUseCase {
@@ -35,7 +36,7 @@ class ReachableUrlUseCaseImpl(private val meterRegistry: MeterRegistry) : Reacha
     override fun isReachable(url: String) : Boolean {
 
         val url = URL(url)
-        val connection: HttpURLConnection = url.openConnection() as HttpURLConnection
+        val connection: HttpsURLConnection = url.openConnection() as HttpsURLConnection
         connection.connectTimeout = 3 * 1000
         return try {
             connection.connect()
