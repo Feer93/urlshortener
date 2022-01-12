@@ -20,9 +20,7 @@ import javax.servlet.http.HttpServletRequest
 interface StatsController {
 
     /**
-     * Handle a specific stats request by returning the data of the specific stat
-     *
-     * **Note**: Delivery of use case [RecoverInfoUseCase].
+     * TODO
      */
     fun statsSpecific(id: String, request: HttpServletRequest): ResponseEntity<StatsOut>
 
@@ -39,6 +37,7 @@ interface StatsController {
 /**
  * Data that the controller returns
  */
+@Schema(name="StatsOut",description = "Specific Stat from the application")
 data class StatsOut(
     val statID: Long? = null,
     val statCount: Long? = null,
@@ -74,7 +73,26 @@ class StatsControllerImpl(
     val recoverInfoUseCase: RecoverInfoUseCase
 ) : StatsController {
 
+    /**
+     * TODO: Handle a specific stats request
+     */
+    @Operation(summary = "Obtain specific stats.", description = "Calculate an specific stat of the application",
+        operationId = "statsSpecific")
+    @Parameters(value = [Parameter(name = "id",`in` = ParameterIn.PATH,
+        description = "Number of the stat requested")])
+    @io.swagger.v3.oas.annotations.responses.ApiResponses(
+        io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Successful operation",
+            content = [Content(mediaType = "application/json",
+                schema = Schema(implementation = StatsOut::class, ))]
 
+        ),
+        io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "Invalid name supplied",
+        )
+    )
     @GetMapping("/stat-{id:[0-9]+}")
     @Timed(description = "Time spent calculating specific stats")
     override fun statsSpecific(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<StatsOut> {
