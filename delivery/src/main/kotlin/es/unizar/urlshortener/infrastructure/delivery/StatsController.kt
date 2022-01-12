@@ -104,6 +104,7 @@ class StatsControllerImpl(
                 response = StatsOut(
                     error = "Error: $idF invalid stat id"
                 )
+                return ResponseEntity<StatsOut>(response, h, HttpStatus.NOT_FOUND)
             }
         }
 
