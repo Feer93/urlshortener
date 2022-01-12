@@ -39,7 +39,7 @@ internal class ReachableUrlUseCaseImplValidateUseCaseTest {
         fun isReachable(url: String): Boolean {
             val url = URL(url)
             val connection: HttpsURLConnection = url.openConnection() as HttpsURLConnection
-            connection.connectTimeout = 3 * 1000
+            connection.connectTimeout = 10 * 1000
             return try {
                 connection.connect()
                 connection.responseCode == HttpStatus.OK.value()
