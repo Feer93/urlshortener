@@ -2,6 +2,12 @@ package es.unizar.urlshortener.infrastructure.delivery
 
 import es.unizar.urlshortener.core.usecases.RecoverInfoUseCase
 import io.micrometer.core.annotation.Timed
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.Parameters
+import io.swagger.v3.oas.annotations.enums.ParameterIn
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -41,11 +47,17 @@ data class StatsOut(
 /**
  * Data that the controller returns when asked for general stats
  */
+@Schema(name="GeneralStatsOut",description = "General Stats from the application")
 data class GeneralStatsOut(
+    @get:[Schema(name = "description", type = "String",description = "Name given")]
     val description: String? = null,
+    @get:[Schema(name = "totalShortenedURL", type = "integer",format = "int64",description = "Total number of shortened URL")]
     val totalShortenedURL: Long? = null,
+    @get:[Schema(name = "totalClicks", type = "integer",format = "int64",description = "Total number of redirections made using a shortened URL")]
     val totalClicks: Long? = null,
+    @get:[Schema(name = "top100clickedShortenedURL", type = "array",oneOf =[String::class,Long::class],description = "Total number of redirections made using a shortened URL")]
     val top100clickedShortenedURL: MutableList<Pair<String, Long>> = mutableListOf(),
+    @get:[Schema(name = "top100hostsWithShortenedURL", type = "array",oneOf =[String::class,Long::class],description = "Top 100 hosts by the number of shortened URL they have")]
     val top100hostsWithShortenedURL: MutableList<Pair<String, Long>> = mutableListOf()
 )
 
@@ -98,7 +110,21 @@ class StatsControllerImpl(
         return ResponseEntity<StatsOut>(response, h, HttpStatus.OK)
     }
 
+    @Operation(summary = "Obtain general stats.", description = "Calculate general stats of the application",operationId = "statsGeneral")
+    @Parameters(value = [Parameter(name = "hash",`in` = ParameterIn.PATH,description = "Any name you want to enter")])
+    @io.swagger.v3.oas.annotations.responses.ApiResponses(
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "Successful operation",
+                    content = [Content(mediaType = "application/json",
+                            schema = Schema(implementation = GeneralStatsOut::class, ))]
 
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid name supplied",
+            )
+    )
     @GetMapping("/{hash:.+}.json")
     @Timed(description = "Time spent calculating general stats")
     override fun statsGeneral(@PathVariable hash: String, request: HttpServletRequest): ResponseEntity<GeneralStatsOut> {
