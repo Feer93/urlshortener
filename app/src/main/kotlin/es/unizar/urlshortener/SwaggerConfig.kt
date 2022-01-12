@@ -31,7 +31,7 @@ class SwaggerConf {
                         .url("https://github.com/Feer93")
                         .name("Fernando"))
                 .description("URL shortener project for UNIZAR subject Web Engineering by Group A.")
-                .version("v0.0.1")
+                .version("v1.0.0")
                 .license(License().name("Apache 2.0").url("http://www.apache.org/licenses/LICENSE-2.0")))
                 .externalDocs(ExternalDocumentation()
                 .url("https://github.com/Feer93/urlshortener").description("Project repository on Github"))

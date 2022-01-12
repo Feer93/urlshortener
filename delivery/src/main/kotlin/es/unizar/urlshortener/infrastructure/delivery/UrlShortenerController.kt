@@ -12,6 +12,8 @@ import io.netty.handler.codec.http.HttpHeaders.newEntity
 import io.swagger.annotations.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.Parameters
+import io.swagger.v3.oas.annotations.enums.ParameterIn
 import io.swagger.v3.oas.annotations.links.Link
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
@@ -30,6 +32,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import java.util.concurrent.BlockingQueue
 import javax.servlet.http.HttpServletRequest
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+import kotlin.reflect.typeOf
 
 
 /**
@@ -64,11 +67,11 @@ interface UrlShortenerController {
  */
 @Schema(name="ShortURLDataIn",description = "Data required to create a short URL.")
 data class ShortUrlDataIn(
-    @get:[Schema(name = "url",description="URL introduced by the user", format = "String", required = true, example = "http//www.some-url.com")]
+    @get:[Schema(name = "url",description="URL introduced by the user", type = "String", required = true, example = "http//www.some-url.com")]
     val url: String,
-    @get:[Schema(name = "createQr",description = "Parameter to ask for a QR image for the URL" ,format = "Boolean", allowableValues = ["True", "False"],required = false)]
+    @get:[Schema(name = "createQr",description = "Parameter to ask for a QR image for the URL" ,type = "Boolean", allowableValues = ["True", "False"],required = false)]
     val createQr: Boolean = false,
-    @get:[Schema(name = "sponsor", format = "String",required = false)]
+    @get:[Schema(name = "sponsor", type = "String",required = false)]
     val sponsor: String? = null
 )
 
@@ -77,9 +80,9 @@ data class ShortUrlDataIn(
  */
 @Schema(name="ShortURLDataOut",description = "Data returned after the creation of a short url.")
 data class ShortUrlDataOut(
-    @get:[Schema(name = "url", format = "URI", example = "http://localhost/tiny-f684a3c4",description = "Shortened URL redirection")]
+    @get:[Schema(name = "url", type = "URI", example = "http://localhost/tiny-f684a3c4",description = "Shortened URL redirection")]
     val url: URI? = null,
-    @get:[Schema(name = "qr", format = "String", description = "URL to QR image code")]
+    @get:[Schema(name = "qr", type = "String", description = "URL to QR image code")]
     val qr: String? = null,
     val properties: Map<String, Any> = emptyMap()
 )
@@ -122,6 +125,7 @@ class UrlShortenerControllerImpl(
     private val multiThreadValidator: ValidationScheduler? = null
 
     @Operation(summary = "Redirects to a specific URL given a shorten URL")
+    @Parameters(value = [Parameter(name = "id",`in` = ParameterIn.PATH,description = "Shortened URL hash")])
     @io.swagger.v3.oas.annotations.responses.ApiResponses(
             io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "303",
