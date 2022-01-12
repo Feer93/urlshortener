@@ -89,8 +89,8 @@ class StatsControllerImpl(
 
         ),
         io.swagger.v3.oas.annotations.responses.ApiResponse(
-            responseCode = "400",
-            description = "Invalid name supplied",
+            responseCode = "404",
+            description = "Invalid stat id",
         )
     )
     @GetMapping("/stat-{id:[0-9]+}")
