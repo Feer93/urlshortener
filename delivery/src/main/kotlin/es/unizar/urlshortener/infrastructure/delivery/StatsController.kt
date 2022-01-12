@@ -20,7 +20,10 @@ import javax.servlet.http.HttpServletRequest
 interface StatsController {
 
     /**
-     * TODO
+     *
+     * Handle a specific stats request by returning the data of the specific stat
+     *
+     * **Note**: Delivery of use case [RecoverInfoUseCase].
      */
     fun statsSpecific(id: String, request: HttpServletRequest): ResponseEntity<StatsOut>
 
@@ -73,9 +76,7 @@ class StatsControllerImpl(
     val recoverInfoUseCase: RecoverInfoUseCase
 ) : StatsController {
 
-    /**
-     * TODO: Handle a specific stats request
-     */
+
     @Operation(summary = "Obtain specific stats.", description = "Calculate an specific stat of the application",
         operationId = "statsSpecific")
     @Parameters(value = [Parameter(name = "id",`in` = ParameterIn.PATH,
@@ -140,7 +141,7 @@ class StatsControllerImpl(
 
             ),
             io.swagger.v3.oas.annotations.responses.ApiResponse(
-                    responseCode = "400",
+                    responseCode = "404",
                     description = "Invalid name supplied",
             )
     )
