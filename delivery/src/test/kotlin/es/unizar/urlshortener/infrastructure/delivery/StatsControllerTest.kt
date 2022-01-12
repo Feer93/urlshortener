@@ -102,6 +102,7 @@ class StatsControllerTest {
 
     }
 
+    @Test
     fun `top 100 hosts with shortened url stat returned correctly`() {
         val top100hostsWithShortenedURL: MutableList<Pair<String, Long>> =
             mutableListOf(Pair("www.example.com", 2), Pair("www.unizar.es", 2))
@@ -113,6 +114,15 @@ class StatsControllerTest {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.statList").isArray)
             .andExpect(jsonPath("$.statID").value(id.toLong()))
+
+    }
+
+    @Test
+    fun `invalid stat id returned error`() {
+        val id = "0"
+
+        mockMvc.perform(get("/stat-{id}", id))
+            .andExpect(status().isNotFound)
 
     }
 
