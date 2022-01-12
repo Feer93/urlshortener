@@ -85,13 +85,19 @@ internal class ReachableUrlUseCaseImplValidateUseCaseTest {
 
     }
 
-
+    /**
+     * Tests de unidad para verificar la función isReachable de la clase ReacheUrlUseCaseImpl.
+     * Se comprueba con una URL alcanzable y con una URL inalcanzable
+     */
     @Test
     fun `URL is reachable mocking ReachableURLUseCase`(){
         val mockedReachableClass = Mockito.mock(ReachableUrlUseCaseImpl::class.java)
         Mockito.`when`(mockedReachableClass.isReachable(url = "https://www.google.com/"))
                 .doAnswer(Answer { ObjBeingMocked.isReachable("https://www.google.com/") })
+        //Debería de volver true para la URL de google.
         assertTrue(mockedReachableClass.isReachable(url = "https://www.google.com/"))
+        //Debería devolver falso para una URL que no existe.
+        assertFalse(mockedReachableClass.isReachable(url = "https://git22hub.com/Feer93/urlshortener"))
     }
 
     @Test
@@ -99,7 +105,10 @@ internal class ReachableUrlUseCaseImplValidateUseCaseTest {
         val mockedValidateSafetyClass = Mockito.mock(ValidateUseCase::class.java)
         Mockito.`when`(mockedValidateSafetyClass.isSafe(url = "https://www.google.com/"))
                 .doAnswer(Answer { ObjBeingMocked.isSafe("https://www.google.com/") })
+        //Debería devolver que es segura la URL de google
         assertTrue(mockedValidateSafetyClass.isSafe(url = "https://www.google.com/"))
+        //Debería devolver que no es segura una URL acortada
+        assertFalse(mockedValidateSafetyClass.isSafe(url = "goo.gl/V4jVrx."))
     }
 
 
