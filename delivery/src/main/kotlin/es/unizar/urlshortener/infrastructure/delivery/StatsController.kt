@@ -20,7 +20,9 @@ import javax.servlet.http.HttpServletRequest
 interface StatsController {
 
     /**
-     * TODO
+     * Handle a specific stats request by returning the data of the specific stat
+     *
+     * **Note**: Delivery of use case [RecoverInfoUseCase].
      */
     fun statsSpecific(id: String, request: HttpServletRequest): ResponseEntity<StatsOut>
 
@@ -72,9 +74,7 @@ class StatsControllerImpl(
     val recoverInfoUseCase: RecoverInfoUseCase
 ) : StatsController {
 
-    /**
-     * TODO: Handle a specific stats request
-     */
+
     @GetMapping("/stat-{id:[0-9]+}")
     @Timed(description = "Time spent calculating specific stats")
     override fun statsSpecific(@PathVariable id: String, request: HttpServletRequest): ResponseEntity<StatsOut> {
