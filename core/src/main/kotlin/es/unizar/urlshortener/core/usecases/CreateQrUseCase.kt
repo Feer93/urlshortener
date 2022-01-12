@@ -58,7 +58,10 @@ open class CreateQrUseCaseImpl  (
         qrCounter.increment()
     }
 
-    //Return String with ByteArray QR image data Base64 encoded
+    /**
+     * Creates the QR associated to 'url' as a string Base64 encoded image
+     * and then returns the URL to get the QR.
+    */
     @Async
     override fun create(url: String?, hash : String?, qrUrl : String?): CompletableFuture<String> {
 
@@ -88,6 +91,9 @@ open class CreateQrUseCaseImpl  (
         return CompletableFuture.completedFuture(qrUrl)
     }
 
+    /**
+     * Return image associated to 'hash' if it exists.
+     */
     override fun get(hash: String): String? {
 
         val qrImage = qrRepositoryService.findByKey(hash)
@@ -95,10 +101,6 @@ open class CreateQrUseCaseImpl  (
             updateQrCounter()
         }
         return qrImage?.image
-    }
-
-    companion object {
-        private val Logger = LoggerFactory.getLogger(CreateQrUseCaseImpl::class.java)
     }
 
 }

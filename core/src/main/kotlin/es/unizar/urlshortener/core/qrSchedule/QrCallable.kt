@@ -5,7 +5,10 @@ import es.unizar.urlshortener.core.usecases.CreateQrUseCaseImpl
 import org.slf4j.LoggerFactory
 import java.util.concurrent.*
 
-
+/**
+* Implementation of interface Callable which is an object
+ * necessary for submitting tasks to qrExecutor
+*/
 class QrCallable : Callable<String> {
 
     private var createQrUseCase : CreateQrUseCase? = null
@@ -23,11 +26,15 @@ class QrCallable : Callable<String> {
 
     }
 
+    /**
+     * Override of call function which will be executed after submit
+     * in qrExecutor
+     */
     @Throws(Exception::class)
     override fun call(): String {
 
         val qr = createQrUseCase?.create(url, hash, qrUrl)
-        Logger.info(Thread.currentThread().id.toString())
+        Logger.info(Thread.currentThread().id.toString() + ": Creating QR")
 
         if (qr != null) {
             return qr.get()
