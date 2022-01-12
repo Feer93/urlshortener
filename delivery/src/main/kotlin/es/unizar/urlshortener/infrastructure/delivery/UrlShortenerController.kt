@@ -249,7 +249,7 @@ class UrlShortenerControllerImpl(
 
             ),
             io.swagger.v3.oas.annotations.responses.ApiResponse(
-                    responseCode = "400",
+                    responseCode = "404",
                     description = "QR image doesn't exists as the hash hasnt been asked previously",
                     content = [Content( schema = Schema(implementation = ShortUrlDataOut::class )
                     )]
